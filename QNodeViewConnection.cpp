@@ -19,14 +19,8 @@
   @date    January 19, 2014
 */
 
-#include <QBrush>
-#include <QGraphicsScene>
-#include <QPainter>
-#include <QPen>
-#include <QStyleOptionGraphicsItem>
-
-#include <QNodeViewConnection.h>
-#include <QNodeViewPort.h>
+#include "QNodeViewConnection.h"
+#include "QNodeViewPort.h"
 
 QNodeViewConnection::QNodeViewConnection(QGraphicsItem* parent)
     : QGraphicsPathItem(parent), m_startPort(NULL), m_endPort(NULL)

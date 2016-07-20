@@ -1,0 +1,56 @@
+{
+    "types": [
+        {
+            "name": "int",
+            "id": 1
+        },
+        {
+            "name": "float",
+            "id": 2
+        },
+        {
+            "name": "color",
+            "id": 3
+        }
+    ],
+
+    "blocks": [
+        {
+            "name": "fill",
+            "inputs": [],
+            "outputs": [
+                {
+                    "name": "col",
+                    "type": "color"
+                },
+                {
+                    "name": "funky",
+                    "type": "float"
+                }
+            ]
+        },
+        {
+            "name": "mixer2",
+            "inputs": [
+                {
+                    "name": "a",
+                    "type": "color"
+                },
+                {
+                    "name": "b",
+                    "type": "color"
+                },
+                {
+                    "name": "amount",
+                    "type": "float"
+                }
+            ],
+            "outputs": [
+                {
+                    "name": "col",
+                    "type": "color"
+                }
+            ]
+        }
+    ]
+}

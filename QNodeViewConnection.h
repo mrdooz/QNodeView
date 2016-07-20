@@ -21,8 +21,7 @@
 
 #pragma once
 
-#include <QGraphicsPathItem>
-#include <QNodeViewCommon.h>
+#include "QNodeViewCommon.h"
 
 class QNodeViewPort;
 

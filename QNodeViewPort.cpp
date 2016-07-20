@@ -19,12 +19,8 @@
   @date    January 19, 2014
 */
 
-#include <QFontMetrics>
-#include <QGraphicsScene>
-#include <QPen>
-
-#include <QNodeViewConnection.h>
-#include <QNodeViewPort.h>
+#include "QNodeViewPort.h"
+#include "QNodeViewConnection.h"
 
 QNodeViewPort::QNodeViewPort(QGraphicsItem* parent)
     : QGraphicsPathItem(parent), m_radius(5), m_margin(2), m_portFlags(0x0)

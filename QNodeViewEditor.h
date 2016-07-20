@@ -21,7 +21,6 @@
 
 #pragma once
 
-#include <QObject>
 
 class QPointF;
 class QGraphicsScene;

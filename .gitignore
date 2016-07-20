@@ -25,6 +25,8 @@ Makefile
 
 debug/*
 release/*
-QNodeView.VC.db
+ipch/*
+*.db
+*.opendb
 .vs/*
 

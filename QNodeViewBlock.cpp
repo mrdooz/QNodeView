@@ -19,14 +19,8 @@
   @date    January 19, 2014
 */
 
-#include <QFontMetrics>
-#include <QGraphicsScene>
-#include <QPainter>
-#include <QPen>
-#include <QStyleOptionGraphicsItem>
-
-#include <QNodeViewBlock.h>
-#include <QNodeViewPort.h>
+#include "QNodeViewBlock.h"
+#include "QNodeViewPort.h"
 
 QNodeViewBlock::QNodeViewBlock(QGraphicsItem* parent)
     : QGraphicsPathItem(parent), m_width(100), m_height(5), m_horizontalMargin(20), m_verticalMargin(5)
@@ -104,18 +98,6 @@ void QNodeViewBlock::addInputPort(const QString& name)
 void QNodeViewBlock::addOutputPort(const QString& name)
 {
   addPort(name, true);
-}
-
-void QNodeViewBlock::addInputPorts(const QStringList& names)
-{
-  for (const QString& name : names)
-    addInputPort(name);
-}
-
-void QNodeViewBlock::addOutputPorts(const QStringList& names)
-{
-  Q_FOREACH (const QString& name, names)
-    addOutputPort(name);
 }
 
 void QNodeViewBlock::save(QDataStream& stream)

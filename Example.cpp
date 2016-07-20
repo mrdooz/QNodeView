@@ -19,16 +19,11 @@
   @date    January 19, 2014
 */
 
-#include <QFileDialog>
-#include <QGraphicsScene>
-#include <QGuiApplication>
-
-#include <QNodeViewBlock.h>
-#include <QNodeViewCanvas.h>
-#include <QNodeViewEditor.h>
-#include <QNodeViewPort.h>
-
-#include <Example.h>
+#include "Example.h"
+#include "QNodeViewBlock.h"
+#include "QNodeViewCanvas.h"
+#include "QNodeViewEditor.h"
+#include "block_loader.hpp"
 
 int main(int argc, char* argv[])
 {
@@ -39,18 +34,55 @@ int main(int argc, char* argv[])
   return application.exec();
 }
 
+struct BlockListWidget : public QListWidget
+{
+  using QListWidget::QListWidget;
+  virtual QMimeData* mimeData(const QList<QListWidgetItem*>& items) const
+  {
+    QListWidgetItem* item = items.front();
+    QMimeData* data = new QMimeData();
+    data->setText(item->text());
+    return data;
+  }
+
+  virtual QMimeData* mimeData(const QList<QListWidgetItem*> items) const
+  {
+    QListWidgetItem* item = items.front();
+    QMimeData* data = new QMimeData();
+    data->setText(item->text());
+    return data;
+  }
+};
+
 ExampleMainWindow::ExampleMainWindow(QWidget* parent) : QMainWindow(parent)
 {
+  loadBlockDesc("config/block1.json");
+
   setWindowTitle(tr("QNodeView Example"));
 
   createMenus();
 
-  m_scene = new QGraphicsScene();
-  m_view = new QNodeViewCanvas(m_scene, this);
-  setCentralWidget(m_view);
+  _scene = new QGraphicsScene();
+  _view = new QNodeViewCanvas(_scene, this);
+  _view->setAcceptDrops(true);
 
-  m_editor = new QNodeViewEditor(this);
-  m_editor->install(m_scene);
+  QSplitter* splitter = new QSplitter();
+  QListWidget* listWidget = new BlockListWidget(this);
+  listWidget->setDragEnabled(true);
+
+  for (auto& kv : blockDefs)
+  {
+    new QListWidgetItem(tr(kv.first.c_str()), listWidget);
+  }
+
+  splitter->addWidget(listWidget);
+  splitter->addWidget(_view);
+  splitter->addWidget(new QPlainTextEdit());
+
+  setCentralWidget(splitter);
+
+  _editor = new QNodeViewEditor(this);
+  _editor->install(_scene);
 
   addBlockInternal(QPointF(0, 0));
   addBlockInternal(QPointF(150, 0));
@@ -63,7 +95,7 @@ ExampleMainWindow::~ExampleMainWindow()
 
 void ExampleMainWindow::addBlock()
 {
-  addBlockInternal(m_view->sceneRect().center().toPoint());
+  addBlockInternal(_view->sceneRect().center().toPoint());
 }
 
 void ExampleMainWindow::saveFile()
@@ -75,7 +107,7 @@ void ExampleMainWindow::saveFile()
   QFile file(fileName);
   file.open(QFile::WriteOnly);
   QDataStream stream(&file);
-  m_editor->save(stream);
+  _editor->save(stream);
 }
 
 void ExampleMainWindow::loadFile()
@@ -87,7 +119,7 @@ void ExampleMainWindow::loadFile()
   QFile file(fileName);
   file.open(QFile::ReadOnly);
   QDataStream stream(&file);
-  m_editor->load(stream);
+  _editor->load(stream);
 }
 
 void ExampleMainWindow::createMenus()
@@ -111,18 +143,18 @@ void ExampleMainWindow::createMenus()
   addAction->setStatusTip(tr("Add new block"));
   connect(addAction, SIGNAL(triggered()), this, SLOT(addBlock()));
 
-  m_fileMenu = menuBar()->addMenu(tr("&File"));
-  m_fileMenu->addAction(addAction);
-  m_fileMenu->addAction(loadAction);
-  m_fileMenu->addAction(saveAction);
-  m_fileMenu->addSeparator();
-  m_fileMenu->addAction(quitAction);
+  _fileMenu = menuBar()->addMenu(tr("&File"));
+  _fileMenu->addAction(addAction);
+  _fileMenu->addAction(loadAction);
+  _fileMenu->addAction(saveAction);
+  _fileMenu->addSeparator();
+  _fileMenu->addAction(quitAction);
 }
 
 void ExampleMainWindow::addBlockInternal(const QPointF& position)
 {
   QNodeViewBlock* block = new QNodeViewBlock(NULL);
-  m_scene->addItem(block);
+  _scene->addItem(block);
 
   static qint32 index = 1;
   QString blockName = QString("myTest%1").arg(index++);

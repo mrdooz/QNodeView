@@ -20,10 +20,7 @@
 */
 
 #pragma once
-
-#include <QGraphicsDropShadowEffect>
-#include <QGraphicsPathItem>
-#include <QNodeViewCommon.h>
+#include "QNodeViewCommon.h"
 
 class QNodeViewPort;
 
@@ -37,8 +34,6 @@ public:
 
   void addInputPort(const QString& name);
   void addOutputPort(const QString& name);
-  void addInputPorts(const QStringList& names);
-  void addOutputPorts(const QStringList& names);
 
   void save(QDataStream& stream);
   void load(QDataStream&, QMap<quint64, QNodeViewPort*>& portMap);

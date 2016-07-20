@@ -19,16 +19,11 @@
   @date    January 19, 2014
 */
 
-#include <QEvent>
-#include <QGraphicsScene>
-#include <QGraphicsSceneMouseEvent>
-#include <QGraphicsView>
-#include <QMenu>
-
-#include <QNodeViewBlock.h>
-#include <QNodeViewConnection.h>
-#include <QNodeViewEditor.h>
-#include <QNodeViewPort.h>
+#include "QNodeViewEditor.h"
+#include "QNodeViewCommon.h"
+#include "QNodeViewConnection.h"
+#include "QNodeViewPort.h"
+#include "QNodeViewBlock.h"
 
 QNodeViewEditor::QNodeViewEditor(QObject* parent) : QObject(parent), m_connection(NULL)
 {

@@ -19,20 +19,22 @@
   @date    January 19, 2014
 */
 
-#include <QNodeViewCanvas.h>
+#include "QNodeViewBlock.h"
+#include "QNodeViewCanvas.h"
+#include "block_loader.hpp"
 
 QNodeViewCanvas::QNodeViewCanvas(QGraphicsScene* scene, QWidget* parent) : QGraphicsView(scene, parent)
 {
   setRenderHint(QPainter::Antialiasing, true);
+  setAcceptDrops(true);
 }
 
 QNodeViewCanvas::~QNodeViewCanvas()
 {
 }
 
-void QNodeViewCanvas::contextMenuEvent(QContextMenuEvent* event)
+void QNodeViewCanvas::contextMenuEvent(QContextMenuEvent* /*event*/)
 {
-  Q_UNUSED(event); // QGraphicsSceneContextMenuEvent
 }
 
 void QNodeViewCanvas::drawBackground(QPainter* painter, const QRectF& rect)
@@ -63,9 +65,57 @@ void QNodeViewCanvas::drawBackground(QPainter* painter, const QRectF& rect)
   painter->drawLines(linesY.data(), linesY.size());
 }
 
+void QNodeViewCanvas::dragEnterEvent(QDragEnterEvent* event)
+{
+  if (event->mimeData()->hasText())
+    event->acceptProposedAction();
+}
+
+void QNodeViewCanvas::dragLeaveEvent(QDragLeaveEvent* /*event*/)
+{
+}
+
+void QNodeViewCanvas::dragMoveEvent(QDragMoveEvent* event)
+{
+  if (event->mimeData()->hasText())
+    event->acceptProposedAction();
+}
+
+void QNodeViewCanvas::dropEvent(QDropEvent* event)
+{
+  QString blockType = event->mimeData()->text();
+
+  // find block def, and create it
+  auto it = blockDefs.find(blockType.toStdString());
+  if (it == blockDefs.end())
+  {
+    qWarning() << "Unable to find block def for: " << blockType;
+    return;
+  }
+
+  const BlockDef& blockDef = it->second;
+
+  QNodeViewBlock* block = new QNodeViewBlock(NULL);
+  scene()->addItem(block);
+
+  block->addPort(blockDef.name.c_str(), 0, QNodeViewPortLabel_Name);
+
+  for (const BlockDef::Node& input : blockDef.inputs)
+  {
+    block->addInputPort(input.name.c_str());
+  }
+
+  for (const BlockDef::Node& output : blockDef.outputs)
+  {
+    block->addOutputPort(output.name.c_str());
+  }
+
+  block->setPos(mapToScene(event->pos()));
+}
+
 void QNodeViewCanvas::wheelEvent(QWheelEvent* event)
 {
-  this->setTransformationAnchor(QGraphicsView::AnchorUnderMouse);
+  setTransformationAnchor(QGraphicsView::AnchorUnderMouse);
   double scaleFactor = 1.15;
 
   if (event->delta() > 0)

@@ -28,26 +28,26 @@ class QNodeViewEditor;
 
 class ExampleMainWindow : public QMainWindow
 {
-    Q_OBJECT
+  Q_OBJECT
 
 public:
-    explicit ExampleMainWindow(QWidget* parent = NULL);
-    ~ExampleMainWindow();
+  explicit ExampleMainWindow(QWidget* parent = NULL);
+  ~ExampleMainWindow();
 
 private slots:
-    void addBlock();
+  void addBlock();
 
-	void saveFile();
-	void loadFile();
-
-private:
-    void createMenus();
-
-    void addBlockInternal(const QPointF& position);
+  void saveFile();
+  void loadFile();
 
 private:
-    QNodeViewEditor* m_editor;
-    QMenu* m_fileMenu;
-    QGraphicsView* m_view;
-    QGraphicsScene* m_scene;
+  void createMenus();
+
+  void addBlockInternal(const QPointF& position);
+
+private:
+  QNodeViewEditor* _editor;
+  QMenu* _fileMenu;
+  QGraphicsView* _view;
+  QGraphicsScene* _scene;
 };
