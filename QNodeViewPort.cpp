@@ -19,139 +19,134 @@
   @date    January 19, 2014
 */
 
-#include <QGraphicsScene>
 #include <QFontMetrics>
+#include <QGraphicsScene>
 #include <QPen>
 
-#include <QNodeViewPort.h>
 #include <QNodeViewConnection.h>
+#include <QNodeViewPort.h>
 
 QNodeViewPort::QNodeViewPort(QGraphicsItem* parent)
-: QGraphicsPathItem(parent)
-, m_radius(5)
-, m_margin(2)
-, m_portFlags(0x0)
+    : QGraphicsPathItem(parent), m_radius(5), m_margin(2), m_portFlags(0x0)
 {
-    setCacheMode(DeviceCoordinateCache);
+  setCacheMode(DeviceCoordinateCache);
 
-    setFlag(QGraphicsItem::ItemSendsScenePositionChanges);
+  setFlag(QGraphicsItem::ItemSendsScenePositionChanges);
 
-    m_label = new QGraphicsTextItem(this);
-    m_label->setCacheMode(DeviceCoordinateCache);
+  m_label = new QGraphicsTextItem(this);
+  m_label->setCacheMode(DeviceCoordinateCache);
 
-    QPainterPath path;
-    path.addEllipse(-m_radius, -m_radius, m_radius * 2, m_radius * 2);
-    setPath(path);
+  QPainterPath path;
+  path.addEllipse(-m_radius, -m_radius, m_radius * 2, m_radius * 2);
+  setPath(path);
 
-    setPen(QPen(QColor(100, 100, 100))); // GW-TODO: Expose to QStyle
-    setBrush(QColor(155, 155, 155)); // GW-TODO: Expose to QStyle
+  setPen(QPen(QColor(100, 100, 100))); // GW-TODO: Expose to QStyle
+  setBrush(QColor(155, 155, 155));     // GW-TODO: Expose to QStyle
 }
 
 QNodeViewPort::~QNodeViewPort()
 {
-    Q_FOREACH (QNodeViewConnection* connection, m_connections)
-        delete connection;
+  Q_FOREACH (QNodeViewConnection* connection, m_connections)
+    delete connection;
 }
 
 void QNodeViewPort::setBlock(QNodeViewBlock* block)
 {
-    m_block = block;
+  m_block = block;
 }
 
 void QNodeViewPort::setName(const QString& name)
 {
-    m_name = name;
-    m_label->setPlainText(name);
+  m_name = name;
+  m_label->setPlainText(name);
 }
 
 void QNodeViewPort::setIsOutput(bool isOutput)
 {
-    m_isOutput = isOutput;
+  m_isOutput = isOutput;
 
-    const qreal boundingWidth = m_label->boundingRect().width();
-    const qreal boundingHalfHeight = m_label->boundingRect().height() / 2;
+  const qreal boundingWidth = m_label->boundingRect().width();
+  const qreal boundingHalfHeight = m_label->boundingRect().height() / 2;
 
-    if (m_isOutput)
-        m_label->setPos(-m_radius - m_margin - boundingWidth, -boundingHalfHeight);
-	else
-        m_label->setPos(m_radius + m_margin, -boundingHalfHeight);
+  if (m_isOutput)
+    m_label->setPos(-m_radius - m_margin - boundingWidth, -boundingHalfHeight);
+  else
+    m_label->setPos(m_radius + m_margin, -boundingHalfHeight);
 
-    m_label->setDefaultTextColor(QColor(155, 155, 155)); // GW-TODO: Expose to QStyle
+  m_label->setDefaultTextColor(QColor(155, 155, 155)); // GW-TODO: Expose to QStyle
 }
 
 void QNodeViewPort::setPortFlags(qint32 flags)
 {
-    m_portFlags = flags;
+  m_portFlags = flags;
 
-    if (m_portFlags & QNodeViewPortLabel_Type)
-    {
-        QFont font(scene()->font());
-        font.setItalic(true);
-        m_label->setFont(font);
-        setPath(QPainterPath());
-    }
-    else if (m_portFlags & QNodeViewPortLabel_Name)
-    {
-        QFont font(scene()->font());
-        font.setBold(true);
-        m_label->setFont(font);
-        setPath(QPainterPath());
-    }
+  if (m_portFlags & QNodeViewPortLabel_Type)
+  {
+    QFont font(scene()->font());
+    font.setItalic(true);
+    m_label->setFont(font);
+    setPath(QPainterPath());
+  }
+  else if (m_portFlags & QNodeViewPortLabel_Name)
+  {
+    QFont font(scene()->font());
+    font.setBold(true);
+    m_label->setFont(font);
+    setPath(QPainterPath());
+  }
 }
 
 void QNodeViewPort::setIndex(quint64 index)
 {
-    m_index = index;
+  m_index = index;
 }
 
 bool QNodeViewPort::isConnected(QNodeViewPort* other)
 {
-    Q_FOREACH (QNodeViewConnection* connection, m_connections)
-    {
-        if (connection->startPort() == other || connection->endPort() == other)
-            return true;
-    }
+  for (QNodeViewConnection* connection : m_connections)
+  {
+    if (connection->startPort() == other || connection->endPort() == other)
+      return true;
+  }
 
-    return false;
+  return false;
 }
 
 bool QNodeViewPort::isOutput()
 {
-    return m_isOutput;
+  return m_isOutput;
 }
-
 
 qint32 QNodeViewPort::radius()
 {
-    return m_radius;
+  return m_radius;
 }
 
 QVector<QNodeViewConnection*>& QNodeViewPort::connections()
 {
-	return m_connections;
+  return m_connections;
 }
 
 QNodeViewBlock* QNodeViewPort::block() const
 {
-	return m_block;
+  return m_block;
 }
 
 quint64 QNodeViewPort::index()
 {
-    return m_index;
+  return m_index;
 }
 
-QVariant QNodeViewPort::itemChange(GraphicsItemChange change, const QVariant &value)
+QVariant QNodeViewPort::itemChange(GraphicsItemChange change, const QVariant& value)
 {
-	if (change == ItemScenePositionHasChanged)
-	{
-        Q_FOREACH (QNodeViewConnection* connection, m_connections)
-		{
-            connection->updatePosition();
-            connection->updatePath();
-            connection->updateSplits();
-		}
-	}
+  if (change == ItemScenePositionHasChanged)
+  {
+    for (QNodeViewConnection* connection : m_connections)
+    {
+      connection->updatePosition();
+      connection->updatePath();
+    }
+  }
 
-	return value;
+  return value;
 }

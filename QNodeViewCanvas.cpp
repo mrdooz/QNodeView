@@ -21,10 +21,9 @@
 
 #include <QNodeViewCanvas.h>
 
-QNodeViewCanvas::QNodeViewCanvas(QGraphicsScene* scene, QWidget* parent)
-: QGraphicsView(scene, parent)
+QNodeViewCanvas::QNodeViewCanvas(QGraphicsScene* scene, QWidget* parent) : QGraphicsView(scene, parent)
 {
-    setRenderHint(QPainter::Antialiasing, true);
+  setRenderHint(QPainter::Antialiasing, true);
 }
 
 QNodeViewCanvas::~QNodeViewCanvas()
@@ -33,45 +32,48 @@ QNodeViewCanvas::~QNodeViewCanvas()
 
 void QNodeViewCanvas::contextMenuEvent(QContextMenuEvent* event)
 {
-    Q_UNUSED(event); // QGraphicsSceneContextMenuEvent
+  Q_UNUSED(event); // QGraphicsSceneContextMenuEvent
 }
 
 void QNodeViewCanvas::drawBackground(QPainter* painter, const QRectF& rect)
 {
-    // GW-TODO: Expose this to QStyle
-    painter->fillRect(rect, QBrush(QColor(50, 50, 50)));
+  // GW-TODO: Expose this to QStyle
+  painter->fillRect(rect, QBrush(QColor(50, 50, 50)));
 
-    const qint32 gridInterval = 50;
-    painter->setWorldMatrixEnabled(true);
+  const qint32 gridInterval = 50;
+  painter->setWorldMatrixEnabled(true);
 
-    // GW-TODO: Expose this to QStyle
-    QPen linePen(QColor(80, 80, 80), 1, Qt::DotLine, Qt::FlatCap, Qt::RoundJoin);
-    linePen.setCosmetic(true); // Performance optimization
-    painter->setPen(linePen);
+  // GW-TODO: Expose this to QStyle
+  QPen linePen(QColor(80, 80, 80), 1, Qt::DotLine, Qt::FlatCap, Qt::RoundJoin);
+  linePen.setCosmetic(true); // Performance optimization
+  painter->setPen(linePen);
 
-    const qreal left = qint32(rect.left()) - (qint32(rect.left()) % gridInterval);
-    const qreal top  = qint32(rect.top())  - (qint32(rect.top())  % gridInterval);
+  const qreal left = qint32(rect.left()) - (qint32(rect.left()) % gridInterval);
+  const qreal top = qint32(rect.top()) - (qint32(rect.top()) % gridInterval);
 
-    QVarLengthArray<QLineF, 100> linesX;
-    for (qreal x = left; x < rect.right(); x += gridInterval)
-        linesX.append(QLineF(x, rect.top(), x, rect.bottom()));
+  QVarLengthArray<QLineF, 100> linesX;
+  for (qreal x = left; x < rect.right(); x += gridInterval)
+    linesX.append(QLineF(x, rect.top(), x, rect.bottom()));
 
-    QVarLengthArray<QLineF, 100> linesY;
-    for (qreal y = top; y < rect.bottom(); y += gridInterval)
-        linesY.append(QLineF(rect.left(), y, rect.right(), y));
+  QVarLengthArray<QLineF, 100> linesY;
+  for (qreal y = top; y < rect.bottom(); y += gridInterval)
+    linesY.append(QLineF(rect.left(), y, rect.right(), y));
 
-    painter->drawLines(linesX.data(), linesX.size());
-    painter->drawLines(linesY.data(), linesY.size());
+  painter->drawLines(linesX.data(), linesX.size());
+  painter->drawLines(linesY.data(), linesY.size());
 }
 
-void QNodeViewCanvas::wheelEvent(QWheelEvent *event)
+void QNodeViewCanvas::wheelEvent(QWheelEvent* event)
 {
-    this->setTransformationAnchor(QGraphicsView::AnchorUnderMouse);
-    double scaleFactor = 1.15;
+  this->setTransformationAnchor(QGraphicsView::AnchorUnderMouse);
+  double scaleFactor = 1.15;
 
-    if(event->delta() > 0) {
-        this-> scale(scaleFactor, scaleFactor);
-    } else {
-        this->scale(1.0 / scaleFactor, 1.0 / scaleFactor);
-    }
+  if (event->delta() > 0)
+  {
+    scale(scaleFactor, scaleFactor);
+  }
+  else
+  {
+    scale(1.0 / scaleFactor, 1.0 / scaleFactor);
+  }
 }

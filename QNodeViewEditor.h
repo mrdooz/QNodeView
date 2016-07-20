@@ -31,24 +31,24 @@ class QNodeViewConnection;
 
 class QNodeViewEditor : public QObject
 {
-	Q_OBJECT
+  Q_OBJECT
 
 public:
-    explicit QNodeViewEditor(QObject* parent = NULL);
+  explicit QNodeViewEditor(QObject* parent = NULL);
 
-    void install(QGraphicsScene* scene);
-    bool eventFilter(QObject* object, QEvent* event);
+  void install(QGraphicsScene* scene);
+  bool eventFilter(QObject* object, QEvent* event);
 
-    void save(QDataStream& stream);
-    void load(QDataStream& stream);
-
-private:
-    QGraphicsItem* itemAt(const QPointF& point);
-
-    void showBlockMenu(const QPoint& point, QNodeViewBlock* block);
-    void showConnectionMenu(const QPoint& point, QNodeViewConnection* connection);
+  void save(QDataStream& stream);
+  void load(QDataStream& stream);
 
 private:
-    QGraphicsScene* m_scene;
-    QNodeViewConnection* m_connection;
+  QGraphicsItem* itemAt(const QPointF& point);
+
+  void showBlockMenu(const QPoint& point, QNodeViewBlock* block);
+  void showConnectionMenu(const QPoint& point, QNodeViewConnection* connection);
+
+private:
+  QGraphicsScene* m_scene;
+  QNodeViewConnection* m_connection;
 };

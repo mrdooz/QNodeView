@@ -18,3 +18,13 @@ moc_*.cpp
 qrc_*.cpp
 Makefile
 *-build-*
+
+.qmake.cache
+*.swp
+
+
+debug/*
+release/*
+QNodeView.VC.db
+.vs/*
+

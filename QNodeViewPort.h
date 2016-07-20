@@ -30,43 +30,50 @@ class QNodeViewConnection;
 class QNodeViewPort : public QGraphicsPathItem
 {
 public:
-    QNodeViewPort(QGraphicsItem* parent = NULL);
-    virtual ~QNodeViewPort();
+  QNodeViewPort(QGraphicsItem* parent = NULL);
+  virtual ~QNodeViewPort();
 
-    void setBlock(QNodeViewBlock* block);
-    void setName(const QString& name);
-    void setIsOutput(bool isOutput);
-    void setPortFlags(qint32 index);
-    void setIndex(quint64);
+  void setBlock(QNodeViewBlock* block);
+  void setName(const QString& name);
+  void setIsOutput(bool isOutput);
+  void setPortFlags(qint32 index);
+  void setIndex(quint64);
 
-    bool isConnected(QNodeViewPort*);
-    bool isOutput();
+  bool isConnected(QNodeViewPort*);
+  bool isOutput();
 
-    qint32 radius();
-    QVector<QNodeViewConnection*>& connections();
-    QNodeViewBlock* block() const;
-    quint64 index();
+  qint32 radius();
+  QVector<QNodeViewConnection*>& connections();
+  QNodeViewBlock* block() const;
+  quint64 index();
 
-    const QString& portName() const { return m_name; }
-	int portFlags() const { return m_portFlags; }
+  const QString& portName() const
+  {
+    return m_name;
+  }
 
-public:
-    // QGraphicsItem
-    int type() const { return QNodeViewType_Port; }
+  int portFlags() const
+  {
+    return m_portFlags;
+  }
+
+  int type() const
+  {
+    return QNodeViewType_Port;
+  }
 
 protected:
-    QVariant itemChange(GraphicsItemChange change, const QVariant& value);
+  QVariant itemChange(GraphicsItemChange change, const QVariant& value);
 
-private:
-    QVector<QNodeViewConnection*> m_connections;
-    QString m_name;
-    QNodeViewBlock* m_block;
-    QGraphicsTextItem* m_label;
+  QVector<QNodeViewConnection*> m_connections;
+  QString m_name;
+  QNodeViewBlock* m_block;
+  QGraphicsTextItem* m_label;
 
-    quint64 m_index;
-    qint32 m_radius;
-    qint32 m_margin;
-    qint32 m_portFlags;
+  quint64 m_index;
+  qint32 m_radius;
+  qint32 m_margin;
+  qint32 m_portFlags;
 
-    bool m_isOutput;
+  bool m_isOutput;
 };

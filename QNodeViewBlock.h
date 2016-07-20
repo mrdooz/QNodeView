@@ -21,8 +21,8 @@
 
 #pragma once
 
-#include <QGraphicsPathItem>
 #include <QGraphicsDropShadowEffect>
+#include <QGraphicsPathItem>
 #include <QNodeViewCommon.h>
 
 class QNodeViewPort;
@@ -30,37 +30,35 @@ class QNodeViewPort;
 class QNodeViewBlock : public QGraphicsPathItem
 {
 public:
-    QNodeViewBlock(QGraphicsItem* parent = NULL);
-    virtual ~QNodeViewBlock();
+  QNodeViewBlock(QGraphicsItem* parent = NULL);
+  virtual ~QNodeViewBlock();
 
-    QNodeViewPort* addPort(const QString& name, bool isOutput, qint32 flags = 0, qint32 index = 0);
+  QNodeViewPort* addPort(const QString& name, bool isOutput, qint32 flags = 0, qint32 index = 0);
 
-    void addInputPort(const QString& name);
-    void addOutputPort(const QString& name);
-    void addInputPorts(const QStringList& names);
-    void addOutputPorts(const QStringList& names);
+  void addInputPort(const QString& name);
+  void addOutputPort(const QString& name);
+  void addInputPorts(const QStringList& names);
+  void addOutputPorts(const QStringList& names);
 
-public:
-    void save(QDataStream& stream);
-    void load(QDataStream&, QMap<quint64, QNodeViewPort*>& portMap);
+  void save(QDataStream& stream);
+  void load(QDataStream&, QMap<quint64, QNodeViewPort*>& portMap);
+  void paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget);
 
-public:
-    void paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget);
+  QNodeViewBlock* clone();
+  QVector<QNodeViewPort*> ports();
 
-public:
-    QNodeViewBlock* clone();
-    QVector<QNodeViewPort*> ports();
-
-    // QGraphicsItem
-    int type() const { return QNodeViewType_Block; }
-
-protected:
-    QVariant itemChange(GraphicsItemChange change, const QVariant& value);
+  // QGraphicsItem
+  int type() const
+  {
+    return QNodeViewType_Block;
+  }
 
 private:
-    //QGraphicsDropShadowEffect m_dropShadow;
-    qint32 m_width;
-    qint32 m_height;
-    qint32 m_horizontalMargin;
-    qint32 m_verticalMargin;
+  QVariant itemChange(GraphicsItemChange change, const QVariant& value);
+
+  QGraphicsDropShadowEffect m_dropShadow;
+  qint32 m_width;
+  qint32 m_height;
+  qint32 m_horizontalMargin;
+  qint32 m_verticalMargin;
 };

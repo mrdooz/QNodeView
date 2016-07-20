@@ -20,235 +20,210 @@
 */
 
 #include <QEvent>
-#include <QMenu>
-#include <QGraphicsView>
 #include <QGraphicsScene>
 #include <QGraphicsSceneMouseEvent>
+#include <QGraphicsView>
+#include <QMenu>
 
+#include <QNodeViewBlock.h>
+#include <QNodeViewConnection.h>
 #include <QNodeViewEditor.h>
 #include <QNodeViewPort.h>
-#include <QNodeViewConnection.h>
-#include <QNodeViewBlock.h>
 
-QNodeViewEditor::QNodeViewEditor(QObject* parent)
-: QObject(parent)
-, m_connection(NULL)
+QNodeViewEditor::QNodeViewEditor(QObject* parent) : QObject(parent), m_connection(NULL)
 {
 }
 
 void QNodeViewEditor::install(QGraphicsScene* scene)
 {
-    Q_ASSERT(scene);
-    scene->installEventFilter(this);
-    m_scene = scene;
+  Q_ASSERT(scene);
+  scene->installEventFilter(this);
+  m_scene = scene;
 }
 
 bool QNodeViewEditor::eventFilter(QObject* object, QEvent* event)
 {
-    QGraphicsSceneMouseEvent* mouseEvent = static_cast<QGraphicsSceneMouseEvent*>(event);
+  QGraphicsSceneMouseEvent* mouseEvent = static_cast<QGraphicsSceneMouseEvent*>(event);
 
-    switch (static_cast<qint32>(event->type()))
-	{
-        case QEvent::GraphicsSceneMousePress:
+  switch (static_cast<qint32>(event->type()))
+  {
+    case QEvent::GraphicsSceneMousePress:
+    {
+      switch (static_cast<qint32>(mouseEvent->button()))
+      {
+        case Qt::LeftButton:
         {
-            switch (static_cast<qint32>(mouseEvent->button()))
-            {
-                case Qt::LeftButton:
-                {
-                    QGraphicsItem* item = itemAt(mouseEvent->scenePos());
-                    if (!item)
-                        break;
-
-                    if (item->type() == QNodeViewType_Port)
-                    {
-                        m_connection = new QNodeViewConnection(NULL);
-                        m_scene->addItem(m_connection);
-                        m_connection->setStartPort(static_cast<QNodeViewPort*>(item));
-                        m_connection->setStartPosition(item->scenePos());
-                        m_connection->setEndPosition(mouseEvent->scenePos());
-                        m_connection->updatePath();
-                        return true;
-                    }
-                    else if (item->type() == QNodeViewType_Block)
-                    {
-                        // GW-TODO: Some form of property editor callback?
-                    }
-
-                    break;
-                }
-
-                case Qt::RightButton:
-                {
-                    QGraphicsItem* item = itemAt(mouseEvent->scenePos());
-                    if (!item)
-                        break;
-
-                    const QPoint menuPosition = mouseEvent->screenPos();
-
-                    if (item->type() == QNodeViewType_Connection)
-                    {
-                        showConnectionMenu(menuPosition, static_cast<QNodeViewConnection*>(item));
-                    }
-                    else if (item->type() == QNodeViewType_Block)
-                    {
-                        showBlockMenu(menuPosition, static_cast<QNodeViewBlock*>(item));
-                    }
-                    else if (item->type() == QNodeViewType_ConnectionSplit)
-                    {
-                        QNodeViewConnectionSplit* split = static_cast<QNodeViewConnectionSplit*>(item);
-                        QNodeViewConnection* connection = split->connection();
-                        connection->splits().removeAll(split);
-                        delete split;
-                        connection->updatePath();
-                    }
-
-                    break;
-                }
-            }
-        }
-
-        case QEvent::GraphicsSceneMouseMove:
-        {
-            if (m_connection)
-            {
-                m_connection->setEndPosition(mouseEvent->scenePos());
-                m_connection->updatePath();
-                return true;
-            }
-
+          QGraphicsItem* item = itemAt(mouseEvent->scenePos());
+          if (!item)
             break;
+
+          if (item->type() == QNodeViewType_Port)
+          {
+            m_connection = new QNodeViewConnection(NULL);
+            m_scene->addItem(m_connection);
+            m_connection->setStartPort(static_cast<QNodeViewPort*>(item));
+            m_connection->setStartPosition(item->scenePos());
+            m_connection->setEndPosition(mouseEvent->scenePos());
+            m_connection->updatePath();
+            return true;
+          }
+          else if (item->type() == QNodeViewType_Block)
+          {
+            // GW-TODO: Some form of property editor callback?
+          }
+
+          break;
         }
 
-        case QEvent::GraphicsSceneMouseRelease:
+        case Qt::RightButton:
         {
-            if (m_connection && mouseEvent->button() == Qt::LeftButton)
-            {
-                QGraphicsItem* item = itemAt(mouseEvent->scenePos());
-                if (item && item->type() == QNodeViewType_Port)
-                {
-                    QNodeViewPort* startPort = m_connection->startPort();
-                    QNodeViewPort* endPort = static_cast<QNodeViewPort*>(item);
-
-                    if (startPort->block()    != endPort->block() &&
-                        startPort->isOutput() != endPort->isOutput() &&
-                        !startPort->isConnected(endPort))
-                    {
-                        m_connection->setEndPosition(endPort->scenePos());
-                        m_connection->setEndPort(endPort);
-                        m_connection->updatePath();
-                        m_connection = NULL;
-                        return true;
-                    }
-                }
-
-                delete m_connection;
-                m_connection = NULL;
-                return true;
-            }
-
+          QGraphicsItem* item = itemAt(mouseEvent->scenePos());
+          if (!item)
             break;
-        }
-	}
 
-    return QObject::eventFilter(object, event);
+          const QPoint menuPosition = mouseEvent->screenPos();
+
+          if (item->type() == QNodeViewType_Connection)
+          {
+            showConnectionMenu(menuPosition, static_cast<QNodeViewConnection*>(item));
+          }
+          else if (item->type() == QNodeViewType_Block)
+          {
+            showBlockMenu(menuPosition, static_cast<QNodeViewBlock*>(item));
+          }
+          break;
+        }
+      }
+    }
+
+    case QEvent::GraphicsSceneMouseMove:
+    {
+      if (m_connection)
+      {
+        m_connection->setEndPosition(mouseEvent->scenePos());
+        m_connection->updatePath();
+        return true;
+      }
+
+      break;
+    }
+
+    case QEvent::GraphicsSceneMouseRelease:
+    {
+      if (m_connection && mouseEvent->button() == Qt::LeftButton)
+      {
+        QGraphicsItem* item = itemAt(mouseEvent->scenePos());
+        if (item && item->type() == QNodeViewType_Port)
+        {
+          QNodeViewPort* startPort = m_connection->startPort();
+          QNodeViewPort* endPort = static_cast<QNodeViewPort*>(item);
+
+          if (startPort->block() != endPort->block() && startPort->isOutput() != endPort->isOutput()
+              && !startPort->isConnected(endPort))
+          {
+            m_connection->setEndPosition(endPort->scenePos());
+            m_connection->setEndPort(endPort);
+            m_connection->updatePath();
+            m_connection = NULL;
+            return true;
+          }
+        }
+
+        delete m_connection;
+        m_connection = NULL;
+        return true;
+      }
+
+      break;
+    }
+  }
+
+  return QObject::eventFilter(object, event);
 }
 
 void QNodeViewEditor::save(QDataStream& stream)
 {
-    Q_FOREACH (QGraphicsItem* item, m_scene->items())
+  Q_FOREACH (QGraphicsItem* item, m_scene->items())
+  {
+    if (item->type() == QNodeViewType_Block)
     {
-        if (item->type() == QNodeViewType_Block)
-		{
-            stream << item->type();
-            static_cast<QNodeViewBlock*>(item)->save(stream);
-		}
+      stream << item->type();
+      static_cast<QNodeViewBlock*>(item)->save(stream);
     }
+  }
 
-    Q_FOREACH (QGraphicsItem* item, m_scene->items())
+  Q_FOREACH (QGraphicsItem* item, m_scene->items())
+  {
+    if (item->type() == QNodeViewType_Connection)
     {
-        if (item->type() == QNodeViewType_Connection)
-		{
-            stream << item->type();
-            static_cast<QNodeViewConnection*>(item)->save(stream);
-		}
+      stream << item->type();
+      static_cast<QNodeViewConnection*>(item)->save(stream);
     }
+  }
 }
 
 void QNodeViewEditor::load(QDataStream& stream)
 {
-    QMap<quint64, QNodeViewPort*> portMap;
+  QMap<quint64, QNodeViewPort*> portMap;
 
-    Q_ASSERT(m_scene);
-    m_scene->clear();
+  Q_ASSERT(m_scene);
+  m_scene->clear();
 
-    while (!stream.atEnd())
-	{
-        qint32 type;
-        stream >> type;
+  while (!stream.atEnd())
+  {
+    qint32 type;
+    stream >> type;
 
-        if (type == QNodeViewType_Block)
-		{
-            QNodeViewBlock* block = new QNodeViewBlock(NULL);
-            m_scene->addItem(block);
-            block->load(stream, portMap);
-        }
-        else if (type == QNodeViewType_Connection)
-		{
-            QNodeViewConnection* connection = new QNodeViewConnection(NULL);
-            m_scene->addItem(connection);
-            connection->load(stream, portMap);
-		}
-	}
+    if (type == QNodeViewType_Block)
+    {
+      QNodeViewBlock* block = new QNodeViewBlock(NULL);
+      m_scene->addItem(block);
+      block->load(stream, portMap);
+    }
+    else if (type == QNodeViewType_Connection)
+    {
+      QNodeViewConnection* connection = new QNodeViewConnection(NULL);
+      m_scene->addItem(connection);
+      connection->load(stream, portMap);
+    }
+  }
 }
 
 QGraphicsItem* QNodeViewEditor::itemAt(const QPointF& point)
 {
-    Q_ASSERT(m_scene);
+  Q_ASSERT(m_scene);
 
-    QList<QGraphicsItem*> items = m_scene->items(QRectF(point - QPointF(1, 1), QSize(3, 3)));
+  QList<QGraphicsItem*> items = m_scene->items(QRectF(point - QPointF(1, 1), QSize(3, 3)));
 
-    Q_FOREACH (QGraphicsItem* item, items)
-    {
-        // Filter out non-user scene items
-        if (item->type() > QGraphicsItem::UserType)
-            return item;
-    }
+  Q_FOREACH (QGraphicsItem* item, items)
+  {
+    // Filter out non-user scene items
+    if (item->type() > QGraphicsItem::UserType)
+      return item;
+  }
 
-    // No user scene items found at point
-    return NULL;
+  // No user scene items found at point
+  return NULL;
 }
 
 void QNodeViewEditor::showBlockMenu(const QPoint& point, QNodeViewBlock* block)
 {
-    QMenu menu;
-    QAction* deleteAction = menu.addAction("Delete");
-    QAction* selection = menu.exec(point);
-    if (selection == deleteAction)
-    {
-        delete block;
-    }
+  QMenu menu;
+  QAction* deleteAction = menu.addAction("Delete");
+  QAction* selection = menu.exec(point);
+  if (selection == deleteAction)
+  {
+    delete block;
+  }
 }
 
 void QNodeViewEditor::showConnectionMenu(const QPoint& point, QNodeViewConnection* connection)
 {
-    QMenu menu;
-    QAction* splitAction = menu.addAction("Split");
-    menu.addSeparator();
-    QAction* deleteAction = menu.addAction("Delete");
-    QAction* selection = menu.exec(point);
-    if (selection == deleteAction)
-    {
-        delete connection;
-    }
-    else if (selection == splitAction)
-    {
-        QNodeViewConnectionSplit* split = new QNodeViewConnectionSplit(connection);
-        m_scene->addItem(split);
-        // GW-TODO: Temp: Need to calculate multiple points
-        QPointF splitPosition = (connection->startPosition() + connection->endPosition()) / 2;
-        split->setSplitPosition(splitPosition);
-        split->updatePath();
-        connection->splits().append(split);
-        connection->updatePath();
-    }
+  QMenu menu;
+  QAction* deleteAction = menu.addAction("Delete");
+  QAction* selection = menu.exec(point);
+  if (selection == deleteAction)
+  {
+    delete connection;
+  }
 }

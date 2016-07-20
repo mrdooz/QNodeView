@@ -19,43 +19,42 @@
   @date    January 19, 2014
 */
 
-#include <QGuiApplication>
-#include <QGraphicsScene>
 #include <QFileDialog>
+#include <QGraphicsScene>
+#include <QGuiApplication>
 
 #include <QNodeViewBlock.h>
+#include <QNodeViewCanvas.h>
 #include <QNodeViewEditor.h>
 #include <QNodeViewPort.h>
-#include <QNodeViewCanvas.h>
 
 #include <Example.h>
 
 int main(int argc, char* argv[])
 {
-    QApplication application(argc, argv);
-    ExampleMainWindow window;
-    window.resize(640, 480);
-    window.show();
-    return application.exec();
+  QApplication application(argc, argv);
+  ExampleMainWindow window;
+  window.resize(640, 480);
+  window.show();
+  return application.exec();
 }
 
-ExampleMainWindow::ExampleMainWindow(QWidget* parent)
-: QMainWindow(parent)
+ExampleMainWindow::ExampleMainWindow(QWidget* parent) : QMainWindow(parent)
 {
-    setWindowTitle(tr("QNodeView Example"));
+  setWindowTitle(tr("QNodeView Example"));
 
-    createMenus();
+  createMenus();
 
-    m_scene = new QGraphicsScene();
-    m_view = new QNodeViewCanvas(m_scene, this);
-    setCentralWidget(m_view);
+  m_scene = new QGraphicsScene();
+  m_view = new QNodeViewCanvas(m_scene, this);
+  setCentralWidget(m_view);
 
-    m_editor = new QNodeViewEditor(this);
-    m_editor->install(m_scene);
+  m_editor = new QNodeViewEditor(this);
+  m_editor->install(m_scene);
 
-    addBlockInternal(QPointF(0, 0));
-    addBlockInternal(QPointF(150, 0));
-    addBlockInternal(QPointF(150, 150));
+  addBlockInternal(QPointF(0, 0));
+  addBlockInternal(QPointF(150, 0));
+  addBlockInternal(QPointF(150, 150));
 }
 
 ExampleMainWindow::~ExampleMainWindow()
@@ -64,80 +63,80 @@ ExampleMainWindow::~ExampleMainWindow()
 
 void ExampleMainWindow::addBlock()
 {
-    addBlockInternal(m_view->sceneRect().center().toPoint());
+  addBlockInternal(m_view->sceneRect().center().toPoint());
 }
 
 void ExampleMainWindow::saveFile()
 {
-    QString fileName = QFileDialog::getSaveFileName();
-    if (fileName.isEmpty())
-		return;
+  QString fileName = QFileDialog::getSaveFileName();
+  if (fileName.isEmpty())
+    return;
 
-    QFile file(fileName);
-    file.open(QFile::WriteOnly);
-    QDataStream stream(&file);
-    m_editor->save(stream);
+  QFile file(fileName);
+  file.open(QFile::WriteOnly);
+  QDataStream stream(&file);
+  m_editor->save(stream);
 }
 
 void ExampleMainWindow::loadFile()
 {
-    QString fileName = QFileDialog::getOpenFileName();
-    if (fileName.isEmpty())
-		return;
+  QString fileName = QFileDialog::getOpenFileName();
+  if (fileName.isEmpty())
+    return;
 
-    QFile file(fileName);
-    file.open(QFile::ReadOnly);
-    QDataStream stream(&file);
-    m_editor->load(stream);
+  QFile file(fileName);
+  file.open(QFile::ReadOnly);
+  QDataStream stream(&file);
+  m_editor->load(stream);
 }
 
 void ExampleMainWindow::createMenus()
 {
-    QAction* quitAction = new QAction(tr("&Quit"), this);
-    quitAction->setShortcuts(QKeySequence::Quit);
-    quitAction->setStatusTip(tr("Quit the example"));
-    connect(quitAction, SIGNAL(triggered()), qApp, SLOT(quit()));
+  QAction* quitAction = new QAction(tr("&Quit"), this);
+  quitAction->setShortcuts(QKeySequence::Quit);
+  quitAction->setStatusTip(tr("Quit the example"));
+  connect(quitAction, SIGNAL(triggered()), qApp, SLOT(quit()));
 
-    QAction* loadAction = new QAction(tr("&Load"), this);
-    loadAction->setShortcuts(QKeySequence::Open);
-    loadAction->setStatusTip(tr("Load node view from file"));
-    connect(loadAction, SIGNAL(triggered()), this, SLOT(loadFile()));
+  QAction* loadAction = new QAction(tr("&Load"), this);
+  loadAction->setShortcuts(QKeySequence::Open);
+  loadAction->setStatusTip(tr("Load node view from file"));
+  connect(loadAction, SIGNAL(triggered()), this, SLOT(loadFile()));
 
-    QAction* saveAction = new QAction(tr("&Save"), this);
-    saveAction->setShortcuts(QKeySequence::Save);
-    saveAction->setStatusTip(tr("Save node view to file"));
-    connect(saveAction, SIGNAL(triggered()), this, SLOT(saveFile()));
+  QAction* saveAction = new QAction(tr("&Save"), this);
+  saveAction->setShortcuts(QKeySequence::Save);
+  saveAction->setStatusTip(tr("Save node view to file"));
+  connect(saveAction, SIGNAL(triggered()), this, SLOT(saveFile()));
 
-    QAction* addAction = new QAction(tr("&Add"), this);
-    addAction->setStatusTip(tr("Add new block"));
-    connect(addAction, SIGNAL(triggered()), this, SLOT(addBlock()));
+  QAction* addAction = new QAction(tr("&Add"), this);
+  addAction->setStatusTip(tr("Add new block"));
+  connect(addAction, SIGNAL(triggered()), this, SLOT(addBlock()));
 
-    m_fileMenu = menuBar()->addMenu(tr("&File"));
-    m_fileMenu->addAction(addAction);
-    m_fileMenu->addAction(loadAction);
-    m_fileMenu->addAction(saveAction);
-    m_fileMenu->addSeparator();
-    m_fileMenu->addAction(quitAction);
+  m_fileMenu = menuBar()->addMenu(tr("&File"));
+  m_fileMenu->addAction(addAction);
+  m_fileMenu->addAction(loadAction);
+  m_fileMenu->addAction(saveAction);
+  m_fileMenu->addSeparator();
+  m_fileMenu->addAction(quitAction);
 }
 
 void ExampleMainWindow::addBlockInternal(const QPointF& position)
 {
-    QNodeViewBlock* block = new QNodeViewBlock(NULL);
-    m_scene->addItem(block);
+  QNodeViewBlock* block = new QNodeViewBlock(NULL);
+  m_scene->addItem(block);
 
-    static qint32 index = 1;
-    QString blockName = QString("myTest%1").arg(index++);
+  static qint32 index = 1;
+  QString blockName = QString("myTest%1").arg(index++);
 
-    block->addPort(blockName, 0, QNodeViewPortLabel_Name);
-    block->addPort("TestEntity", 0, QNodeViewPortLabel_Type);
+  block->addPort(blockName, 0, QNodeViewPortLabel_Name);
+  block->addPort("TestEntity", 0, QNodeViewPortLabel_Type);
 
-    block->addInputPort("Input 1");
-    block->addInputPort("Input 2");
-    block->addInputPort("Input 3");
+  block->addInputPort("Input 1");
+  block->addInputPort("Input 2");
+  block->addInputPort("Input 3");
 
-    block->addOutputPort("Output 1");
-    block->addOutputPort("Output 2");
-    block->addOutputPort("Output 3");
-    block->addOutputPort("Output 4");
-    block->setPos(position);
+  block->addOutputPort("Output 1");
+  block->addOutputPort("Output 2");
+  block->addOutputPort("Output 3");
+  block->addOutputPort("Output 4");
+  block->setPos(position);
 }
