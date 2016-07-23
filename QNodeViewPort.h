@@ -35,8 +35,6 @@ public:
   void setBlock(QNodeViewBlock* block);
   void setName(const QString& name);
   void setIsOutput(bool isOutput);
-  void setPortFlags(qint32 index);
-  void setIndex(quint64);
 
   bool isConnected(QNodeViewPort*);
   bool isOutput();
@@ -44,16 +42,10 @@ public:
   qint32 radius();
   QVector<QNodeViewConnection*>& connections();
   QNodeViewBlock* block() const;
-  quint64 index();
 
   const QString& portName() const
   {
-    return m_name;
-  }
-
-  int portFlags() const
-  {
-    return m_portFlags;
+    return _name;
   }
 
   int type() const
@@ -61,18 +53,16 @@ public:
     return QNodeViewType_Port;
   }
 
-protected:
+private:
   QVariant itemChange(GraphicsItemChange change, const QVariant& value);
 
-  QVector<QNodeViewConnection*> m_connections;
-  QString m_name;
-  QNodeViewBlock* m_block;
-  QGraphicsTextItem* m_label;
+  QVector<QNodeViewConnection*> _connections;
+  QString _name;
+  QNodeViewBlock* _block;
+  QGraphicsTextItem* _label;
 
-  quint64 m_index;
-  qint32 m_radius;
-  qint32 m_margin;
-  qint32 m_portFlags;
+  qint32 _radius;
+  qint32 _margin;
 
-  bool m_isOutput;
+  bool _isOutput;
 };

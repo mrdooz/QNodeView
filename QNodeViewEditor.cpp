@@ -25,26 +25,29 @@
 #include "QNodeViewPort.h"
 #include "QNodeViewBlock.h"
 
-QNodeViewEditor::QNodeViewEditor(QObject* parent) : QObject(parent), m_connection(NULL)
+//------------------------------------------------------------------------------
+QNodeViewEditor::QNodeViewEditor(QObject* parent) : QObject(parent), _activeConnection(NULL)
 {
 }
 
+//------------------------------------------------------------------------------
 void QNodeViewEditor::install(QGraphicsScene* scene)
 {
   Q_ASSERT(scene);
   scene->installEventFilter(this);
-  m_scene = scene;
+  _scene = scene;
 }
 
+//------------------------------------------------------------------------------
 bool QNodeViewEditor::eventFilter(QObject* object, QEvent* event)
 {
   QGraphicsSceneMouseEvent* mouseEvent = static_cast<QGraphicsSceneMouseEvent*>(event);
 
-  switch (static_cast<qint32>(event->type()))
+  switch (event->type())
   {
     case QEvent::GraphicsSceneMousePress:
     {
-      switch (static_cast<qint32>(mouseEvent->button()))
+      switch (mouseEvent->button())
       {
         case Qt::LeftButton:
         {
@@ -54,12 +57,12 @@ bool QNodeViewEditor::eventFilter(QObject* object, QEvent* event)
 
           if (item->type() == QNodeViewType_Port)
           {
-            m_connection = new QNodeViewConnection(NULL);
-            m_scene->addItem(m_connection);
-            m_connection->setStartPort(static_cast<QNodeViewPort*>(item));
-            m_connection->setStartPosition(item->scenePos());
-            m_connection->setEndPosition(mouseEvent->scenePos());
-            m_connection->updatePath();
+            _activeConnection = new QNodeViewConnection(NULL);
+            _scene->addItem(_activeConnection);
+            _activeConnection->setStartPort(static_cast<QNodeViewPort*>(item));
+            _activeConnection->setStartPosition(item->scenePos());
+            _activeConnection->setEndPosition(mouseEvent->scenePos());
+            _activeConnection->updatePath();
             return true;
           }
           else if (item->type() == QNodeViewType_Block)
@@ -81,10 +84,12 @@ bool QNodeViewEditor::eventFilter(QObject* object, QEvent* event)
           if (item->type() == QNodeViewType_Connection)
           {
             showConnectionMenu(menuPosition, static_cast<QNodeViewConnection*>(item));
+            return true;
           }
           else if (item->type() == QNodeViewType_Block)
           {
             showBlockMenu(menuPosition, static_cast<QNodeViewBlock*>(item));
+            return true;
           }
           break;
         }
@@ -93,10 +98,10 @@ bool QNodeViewEditor::eventFilter(QObject* object, QEvent* event)
 
     case QEvent::GraphicsSceneMouseMove:
     {
-      if (m_connection)
+      if (_activeConnection)
       {
-        m_connection->setEndPosition(mouseEvent->scenePos());
-        m_connection->updatePath();
+        _activeConnection->setEndPosition(mouseEvent->scenePos());
+        _activeConnection->updatePath();
         return true;
       }
 
@@ -105,27 +110,28 @@ bool QNodeViewEditor::eventFilter(QObject* object, QEvent* event)
 
     case QEvent::GraphicsSceneMouseRelease:
     {
-      if (m_connection && mouseEvent->button() == Qt::LeftButton)
+      if (_activeConnection && mouseEvent->button() == Qt::LeftButton)
       {
         QGraphicsItem* item = itemAt(mouseEvent->scenePos());
         if (item && item->type() == QNodeViewType_Port)
         {
-          QNodeViewPort* startPort = m_connection->startPort();
+          QNodeViewPort* startPort = _activeConnection->startPort();
           QNodeViewPort* endPort = static_cast<QNodeViewPort*>(item);
 
           if (startPort->block() != endPort->block() && startPort->isOutput() != endPort->isOutput()
               && !startPort->isConnected(endPort))
           {
-            m_connection->setEndPosition(endPort->scenePos());
-            m_connection->setEndPort(endPort);
-            m_connection->updatePath();
-            m_connection = NULL;
+            _activeConnection->setEndPosition(endPort->scenePos());
+            _activeConnection->setEndPort(endPort);
+            _activeConnection->updatePath();
+            _activeConnection = NULL;
             return true;
           }
         }
 
-        delete m_connection;
-        m_connection = NULL;
+        _scene->removeItem(_activeConnection);
+        delete _activeConnection;
+        _activeConnection = NULL;
         return true;
       }
 
@@ -136,59 +142,12 @@ bool QNodeViewEditor::eventFilter(QObject* object, QEvent* event)
   return QObject::eventFilter(object, event);
 }
 
-void QNodeViewEditor::save(QDataStream& stream)
-{
-  Q_FOREACH (QGraphicsItem* item, m_scene->items())
-  {
-    if (item->type() == QNodeViewType_Block)
-    {
-      stream << item->type();
-      static_cast<QNodeViewBlock*>(item)->save(stream);
-    }
-  }
-
-  Q_FOREACH (QGraphicsItem* item, m_scene->items())
-  {
-    if (item->type() == QNodeViewType_Connection)
-    {
-      stream << item->type();
-      static_cast<QNodeViewConnection*>(item)->save(stream);
-    }
-  }
-}
-
-void QNodeViewEditor::load(QDataStream& stream)
-{
-  QMap<quint64, QNodeViewPort*> portMap;
-
-  Q_ASSERT(m_scene);
-  m_scene->clear();
-
-  while (!stream.atEnd())
-  {
-    qint32 type;
-    stream >> type;
-
-    if (type == QNodeViewType_Block)
-    {
-      QNodeViewBlock* block = new QNodeViewBlock(NULL);
-      m_scene->addItem(block);
-      block->load(stream, portMap);
-    }
-    else if (type == QNodeViewType_Connection)
-    {
-      QNodeViewConnection* connection = new QNodeViewConnection(NULL);
-      m_scene->addItem(connection);
-      connection->load(stream, portMap);
-    }
-  }
-}
-
+//------------------------------------------------------------------------------
 QGraphicsItem* QNodeViewEditor::itemAt(const QPointF& point)
 {
-  Q_ASSERT(m_scene);
+  Q_ASSERT(_scene);
 
-  QList<QGraphicsItem*> items = m_scene->items(QRectF(point - QPointF(1, 1), QSize(3, 3)));
+  QList<QGraphicsItem*> items = _scene->items(QRectF(point - QPointF(1, 1), QSize(3, 3)));
 
   Q_FOREACH (QGraphicsItem* item, items)
   {
@@ -201,6 +160,7 @@ QGraphicsItem* QNodeViewEditor::itemAt(const QPointF& point)
   return NULL;
 }
 
+//------------------------------------------------------------------------------
 void QNodeViewEditor::showBlockMenu(const QPoint& point, QNodeViewBlock* block)
 {
   QMenu menu;
@@ -212,6 +172,7 @@ void QNodeViewEditor::showBlockMenu(const QPoint& point, QNodeViewBlock* block)
   }
 }
 
+//------------------------------------------------------------------------------
 void QNodeViewEditor::showConnectionMenu(const QPoint& point, QNodeViewConnection* connection)
 {
   QMenu menu;

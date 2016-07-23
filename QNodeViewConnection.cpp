@@ -104,23 +104,3 @@ QNodeViewPort* QNodeViewConnection::endPort() const
 {
   return m_endPort;
 }
-
-void QNodeViewConnection::save(QDataStream& stream)
-{
-  stream << reinterpret_cast<quint64>(m_startPort);
-  stream << reinterpret_cast<quint64>(m_endPort);
-}
-
-void QNodeViewConnection::load(QDataStream& stream, const QMap<quint64, QNodeViewPort*>& portMap)
-{
-  quint64 startPortIndex;
-  quint64 endPortIndex;
-  stream >> startPortIndex;
-  stream >> endPortIndex;
-
-  setStartPort(portMap[startPortIndex]);
-  setEndPort(portMap[endPortIndex]);
-
-  updatePosition();
-  updatePath();
-}

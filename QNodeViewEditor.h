@@ -38,9 +38,6 @@ public:
   void install(QGraphicsScene* scene);
   bool eventFilter(QObject* object, QEvent* event);
 
-  void save(QDataStream& stream);
-  void load(QDataStream& stream);
-
 private:
   QGraphicsItem* itemAt(const QPointF& point);
 
@@ -48,6 +45,6 @@ private:
   void showConnectionMenu(const QPoint& point, QNodeViewConnection* connection);
 
 private:
-  QGraphicsScene* m_scene;
-  QNodeViewConnection* m_connection;
+  QGraphicsScene* _scene;
+  QNodeViewConnection* _activeConnection;
 };

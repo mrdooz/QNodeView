@@ -27,33 +27,29 @@ class QNodeViewPort;
 class QNodeViewBlock : public QGraphicsPathItem
 {
 public:
-  QNodeViewBlock(QGraphicsItem* parent = NULL);
+  QNodeViewBlock(const QString& name, QGraphicsItem* parent = NULL);
   virtual ~QNodeViewBlock();
 
-  QNodeViewPort* addPort(const QString& name, bool isOutput, qint32 flags = 0, qint32 index = 0);
+  QNodeViewPort* addPort(const QString& name, bool isOutput);
+  void addInputPort(const QString& name, int type);
+  void addOutputPort(const QString& name, int type);
 
-  void addInputPort(const QString& name);
-  void addOutputPort(const QString& name);
-
-  void save(QDataStream& stream);
-  void load(QDataStream&, QMap<quint64, QNodeViewPort*>& portMap);
   void paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget);
 
   QNodeViewBlock* clone();
   QVector<QNodeViewPort*> ports();
 
-  // QGraphicsItem
   int type() const
   {
     return QNodeViewType_Block;
   }
 
 private:
-  QVariant itemChange(GraphicsItemChange change, const QVariant& value);
 
-  QGraphicsDropShadowEffect m_dropShadow;
-  qint32 m_width;
-  qint32 m_height;
-  qint32 m_horizontalMargin;
-  qint32 m_verticalMargin;
+  QGraphicsTextItem* _label;
+  QGraphicsDropShadowEffect _dropShadow;
+  qint32 _width;
+  qint32 _height;
+  qint32 _horizontalMargin;
+  qint32 _verticalMargin;
 };

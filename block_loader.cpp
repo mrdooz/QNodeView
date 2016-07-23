@@ -70,7 +70,6 @@ bool loadBlockDesc(const string& filename)
     }
 
     // read outputs
-
     for (const QJsonValue& valOutput : objBlock["outputs"].toArray())
     {
       QJsonObject objOutput = valOutput.toObject();

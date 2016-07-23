@@ -23,20 +23,24 @@
 #include "QNodeViewCanvas.h"
 #include "block_loader.hpp"
 
+//------------------------------------------------------------------------------
 QNodeViewCanvas::QNodeViewCanvas(QGraphicsScene* scene, QWidget* parent) : QGraphicsView(scene, parent)
 {
   setRenderHint(QPainter::Antialiasing, true);
   setAcceptDrops(true);
 }
 
+//------------------------------------------------------------------------------
 QNodeViewCanvas::~QNodeViewCanvas()
 {
 }
 
+//------------------------------------------------------------------------------
 void QNodeViewCanvas::contextMenuEvent(QContextMenuEvent* /*event*/)
 {
 }
 
+//------------------------------------------------------------------------------
 void QNodeViewCanvas::drawBackground(QPainter* painter, const QRectF& rect)
 {
   // GW-TODO: Expose this to QStyle
@@ -65,22 +69,26 @@ void QNodeViewCanvas::drawBackground(QPainter* painter, const QRectF& rect)
   painter->drawLines(linesY.data(), linesY.size());
 }
 
+//------------------------------------------------------------------------------
 void QNodeViewCanvas::dragEnterEvent(QDragEnterEvent* event)
 {
   if (event->mimeData()->hasText())
     event->acceptProposedAction();
 }
 
+//------------------------------------------------------------------------------
 void QNodeViewCanvas::dragLeaveEvent(QDragLeaveEvent* /*event*/)
 {
 }
 
+//------------------------------------------------------------------------------
 void QNodeViewCanvas::dragMoveEvent(QDragMoveEvent* event)
 {
   if (event->mimeData()->hasText())
     event->acceptProposedAction();
 }
 
+//------------------------------------------------------------------------------
 void QNodeViewCanvas::dropEvent(QDropEvent* event)
 {
   QString blockType = event->mimeData()->text();
@@ -95,24 +103,23 @@ void QNodeViewCanvas::dropEvent(QDropEvent* event)
 
   const BlockDef& blockDef = it->second;
 
-  QNodeViewBlock* block = new QNodeViewBlock(NULL);
+  QNodeViewBlock* block = new QNodeViewBlock(blockDef.name.c_str());
   scene()->addItem(block);
-
-  block->addPort(blockDef.name.c_str(), 0, QNodeViewPortLabel_Name);
 
   for (const BlockDef::Node& input : blockDef.inputs)
   {
-    block->addInputPort(input.name.c_str());
+    block->addInputPort(input.name.c_str(), input.param.id);
   }
 
   for (const BlockDef::Node& output : blockDef.outputs)
   {
-    block->addOutputPort(output.name.c_str());
+    block->addOutputPort(output.name.c_str(), output.param.id);
   }
 
   block->setPos(mapToScene(event->pos()));
 }
 
+//------------------------------------------------------------------------------
 void QNodeViewCanvas::wheelEvent(QWheelEvent* event)
 {
   setTransformationAnchor(QGraphicsView::AnchorUnderMouse);

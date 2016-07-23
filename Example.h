@@ -32,20 +32,10 @@ class ExampleMainWindow : public QMainWindow
 
 public:
   explicit ExampleMainWindow(QWidget* parent = NULL);
-  ~ExampleMainWindow();
-
-private slots:
-  void addBlock();
-
-  void saveFile();
-  void loadFile();
 
 private:
   void createMenus();
 
-  void addBlockInternal(const QPointF& position);
-
-private:
   QNodeViewEditor* _editor;
   QMenu* _fileMenu;
   QGraphicsView* _view;

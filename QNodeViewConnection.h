@@ -52,9 +52,6 @@ public:
   QNodeViewPort* startPort() const;
   QNodeViewPort* endPort() const;
 
-  void save(QDataStream& stream);
-  void load(QDataStream&, const QMap<quint64, QNodeViewPort*>& portMap);
-
   int type() const
   {
     return QNodeViewType_Connection;

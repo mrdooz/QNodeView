@@ -22,13 +22,21 @@
 #include "QNodeViewBlock.h"
 #include "QNodeViewPort.h"
 
-QNodeViewBlock::QNodeViewBlock(QGraphicsItem* parent)
-    : QGraphicsPathItem(parent), m_width(100), m_height(5), m_horizontalMargin(20), m_verticalMargin(5)
+QNodeViewBlock::QNodeViewBlock(const QString& name, QGraphicsItem* parent)
+    : QGraphicsPathItem(parent)
+    , _width(100)
+    , _height(5)
+    , _horizontalMargin(20)
+    , _verticalMargin(5)
 {
   setCacheMode(DeviceCoordinateCache);
 
   setFlag(QGraphicsItem::ItemIsMovable);
   setFlag(QGraphicsItem::ItemIsSelectable);
+
+  _label = new QGraphicsTextItem(this);
+  _label->setCacheMode(DeviceCoordinateCache);
+  _label->setPlainText(name);
 
   QPainterPath path;
   path.addRoundedRect(-50, -15, 100, 30, 5, 5);
@@ -36,41 +44,39 @@ QNodeViewBlock::QNodeViewBlock(QGraphicsItem* parent)
   setPen(QPen(QColor(30, 30, 30))); // GW-TODO: Expose to QStyle
   setBrush(QColor(50, 50, 50));     // GW-TODO: Expose to QStyle
 
-  m_dropShadow.setBlurRadius(16);
-  m_dropShadow.setXOffset(0.0);
-  m_dropShadow.setYOffset(5.0);
+  _dropShadow.setBlurRadius(16);
+  _dropShadow.setXOffset(0.0);
+  _dropShadow.setYOffset(5.0);
 
-  setGraphicsEffect(&m_dropShadow);
+  setGraphicsEffect(&_dropShadow);
 }
 
 QNodeViewBlock::~QNodeViewBlock()
 {
 }
 
-QNodeViewPort* QNodeViewBlock::addPort(const QString& name, bool isOutput, qint32 flags, qint32 index)
+QNodeViewPort* QNodeViewBlock::addPort(const QString& name, bool isOutput)
 {
   QNodeViewPort* port = new QNodeViewPort(this);
   port->setName(name);
   port->setIsOutput(isOutput);
   port->setBlock(this);
-  port->setPortFlags(flags);
-  port->setIndex(index);
 
   QFontMetrics fontMetrics(scene()->font());
   const qint32 width = fontMetrics.width(name);
   const qint32 height = fontMetrics.height();
 
-  if (width > m_width - m_horizontalMargin)
-    m_width = width + m_horizontalMargin;
+  if (width > _width - _horizontalMargin)
+    _width = width + _horizontalMargin;
 
-  m_height += height;
+  _height += height;
 
   // update block size to accomodate port
   QPainterPath path;
-  path.addRoundedRect(-(m_width >> 1), -(m_height >> 1), m_width, m_height, 5, 5);
+  path.addRoundedRect(-(_width >> 1), -(_height >> 1), _width, _height, 5, 5);
   setPath(path);
 
-  qint32 y = -(m_height >> 1) + m_verticalMargin + port->radius();
+  qint32 y = -(_height >> 1) + _verticalMargin + port->radius();
 
   for (QGraphicsItem* childItem : childItems())
   {
@@ -80,9 +86,9 @@ QNodeViewPort* QNodeViewBlock::addPort(const QString& name, bool isOutput, qint3
     QNodeViewPort* childPort = static_cast<QNodeViewPort*>(childItem);
 
     if (childPort->isOutput())
-      childPort->setPos((m_width >> 1) + childPort->radius(), y);
+      childPort->setPos((_width >> 1) + childPort->radius(), y);
     else
-      childPort->setPos(-(m_width >> 1) - childPort->radius(), y);
+      childPort->setPos(-(_width >> 1) - childPort->radius(), y);
 
     y += height;
   }
@@ -90,70 +96,14 @@ QNodeViewPort* QNodeViewBlock::addPort(const QString& name, bool isOutput, qint3
   return port;
 }
 
-void QNodeViewBlock::addInputPort(const QString& name)
+void QNodeViewBlock::addInputPort(const QString& name, int /*type*/)
 {
   addPort(name, false);
 }
 
-void QNodeViewBlock::addOutputPort(const QString& name)
+void QNodeViewBlock::addOutputPort(const QString& name, int /*type*/)
 {
   addPort(name, true);
-}
-
-void QNodeViewBlock::save(QDataStream& stream)
-{
-  stream << pos();
-
-  qint32 count = 0;
-
-  Q_FOREACH (QGraphicsItem* childItem, childItems())
-  {
-    if (childItem->type() != QNodeViewType_Port)
-      continue;
-
-    ++count;
-  }
-
-  stream << count;
-
-  Q_FOREACH (QGraphicsItem* childItem, childItems())
-  {
-    if (childItem->type() != QNodeViewType_Port)
-      continue;
-
-    QNodeViewPort* port = static_cast<QNodeViewPort*>(childItem);
-    stream << reinterpret_cast<quint64>(port);
-    stream << port->portName();
-    stream << port->isOutput();
-    stream << port->portFlags();
-  }
-}
-
-void QNodeViewBlock::load(QDataStream& stream, QMap<quint64, QNodeViewPort*>& portMap)
-{
-  QPointF position;
-  stream >> position;
-  setPos(position);
-
-  qint32 count;
-  stream >> count;
-
-  for (qint32 iter = 0; iter < count; iter++)
-  {
-    quint64 index;
-    stream >> index;
-
-    QString name;
-    stream >> name;
-
-    bool output;
-    stream >> output;
-
-    qint32 flags;
-    stream >> flags;
-
-    portMap[index] = addPort(name, output, flags, index);
-  }
 }
 
 void QNodeViewBlock::paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget)
@@ -187,8 +137,7 @@ QNodeViewBlock* QNodeViewBlock::clone()
     if (childPort->type() == QNodeViewType_Port)
     {
       QNodeViewPort* clonePort = static_cast<QNodeViewPort*>(childPort);
-      block->addPort(
-          clonePort->portName(), clonePort->isOutput(), clonePort->portFlags(), clonePort->index());
+      block->addPort(clonePort->portName(), clonePort->isOutput());
     }
   }
 
@@ -206,10 +155,4 @@ QVector<QNodeViewPort*> QNodeViewBlock::ports()
   }
 
   return result;
-}
-
-QVariant QNodeViewBlock::itemChange(GraphicsItemChange change, const QVariant& value)
-{
-  Q_UNUSED(change);
-  return value;
 }

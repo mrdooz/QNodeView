@@ -60,8 +60,6 @@ ExampleMainWindow::ExampleMainWindow(QWidget* parent) : QMainWindow(parent)
 
   setWindowTitle(tr("QNodeView Example"));
 
-  createMenus();
-
   _scene = new QGraphicsScene();
   _view = new QNodeViewCanvas(_scene, this);
   _view->setAcceptDrops(true);
@@ -77,98 +75,11 @@ ExampleMainWindow::ExampleMainWindow(QWidget* parent) : QMainWindow(parent)
 
   splitter->addWidget(listWidget);
   splitter->addWidget(_view);
-  splitter->addWidget(new QPlainTextEdit());
+  _view->setMinimumSize(400, 400);
+  //splitter->addWidget(new QPlainTextEdit());
 
   setCentralWidget(splitter);
 
   _editor = new QNodeViewEditor(this);
   _editor->install(_scene);
-
-  addBlockInternal(QPointF(0, 0));
-  addBlockInternal(QPointF(150, 0));
-  addBlockInternal(QPointF(150, 150));
-}
-
-ExampleMainWindow::~ExampleMainWindow()
-{
-}
-
-void ExampleMainWindow::addBlock()
-{
-  addBlockInternal(_view->sceneRect().center().toPoint());
-}
-
-void ExampleMainWindow::saveFile()
-{
-  QString fileName = QFileDialog::getSaveFileName();
-  if (fileName.isEmpty())
-    return;
-
-  QFile file(fileName);
-  file.open(QFile::WriteOnly);
-  QDataStream stream(&file);
-  _editor->save(stream);
-}
-
-void ExampleMainWindow::loadFile()
-{
-  QString fileName = QFileDialog::getOpenFileName();
-  if (fileName.isEmpty())
-    return;
-
-  QFile file(fileName);
-  file.open(QFile::ReadOnly);
-  QDataStream stream(&file);
-  _editor->load(stream);
-}
-
-void ExampleMainWindow::createMenus()
-{
-  QAction* quitAction = new QAction(tr("&Quit"), this);
-  quitAction->setShortcuts(QKeySequence::Quit);
-  quitAction->setStatusTip(tr("Quit the example"));
-  connect(quitAction, SIGNAL(triggered()), qApp, SLOT(quit()));
-
-  QAction* loadAction = new QAction(tr("&Load"), this);
-  loadAction->setShortcuts(QKeySequence::Open);
-  loadAction->setStatusTip(tr("Load node view from file"));
-  connect(loadAction, SIGNAL(triggered()), this, SLOT(loadFile()));
-
-  QAction* saveAction = new QAction(tr("&Save"), this);
-  saveAction->setShortcuts(QKeySequence::Save);
-  saveAction->setStatusTip(tr("Save node view to file"));
-  connect(saveAction, SIGNAL(triggered()), this, SLOT(saveFile()));
-
-  QAction* addAction = new QAction(tr("&Add"), this);
-  addAction->setStatusTip(tr("Add new block"));
-  connect(addAction, SIGNAL(triggered()), this, SLOT(addBlock()));
-
-  _fileMenu = menuBar()->addMenu(tr("&File"));
-  _fileMenu->addAction(addAction);
-  _fileMenu->addAction(loadAction);
-  _fileMenu->addAction(saveAction);
-  _fileMenu->addSeparator();
-  _fileMenu->addAction(quitAction);
-}
-
-void ExampleMainWindow::addBlockInternal(const QPointF& position)
-{
-  QNodeViewBlock* block = new QNodeViewBlock(NULL);
-  _scene->addItem(block);
-
-  static qint32 index = 1;
-  QString blockName = QString("myTest%1").arg(index++);
-
-  block->addPort(blockName, 0, QNodeViewPortLabel_Name);
-  block->addPort("TestEntity", 0, QNodeViewPortLabel_Type);
-
-  block->addInputPort("Input 1");
-  block->addInputPort("Input 2");
-  block->addInputPort("Input 3");
-
-  block->addOutputPort("Output 1");
-  block->addOutputPort("Output 2");
-  block->addOutputPort("Output 3");
-  block->addOutputPort("Output 4");
-  block->setPos(position);
 }
