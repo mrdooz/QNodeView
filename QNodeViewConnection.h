@@ -40,27 +40,19 @@ public:
   void updatePosition();
   void updatePath();
 
-  QPointF startPosition() const
-  {
-    return m_startPosition;
-  }
-  QPointF endPosition() const
-  {
-    return m_endPosition;
-  }
+  QPointF startPosition() const;
+  QPointF endPosition() const;
 
   QNodeViewPort* startPort() const;
   QNodeViewPort* endPort() const;
 
-  int type() const
-  {
-    return QNodeViewType_Connection;
-  }
+  void finalize();
+  int type() const;
 
 private:
-  QPointF m_startPosition;
-  QPointF m_endPosition;
+  QPointF _startPosition;
+  QPointF _endPosition;
 
-  QNodeViewPort* m_startPort;
-  QNodeViewPort* m_endPort;
+  QNodeViewPort* _startPort = nullptr;
+  QNodeViewPort* _endPort = nullptr;
 };

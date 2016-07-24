@@ -22,8 +22,9 @@
 #include "QNodeViewConnection.h"
 #include "QNodeViewPort.h"
 
+//------------------------------------------------------------------------------
 QNodeViewConnection::QNodeViewConnection(QGraphicsItem* parent)
-    : QGraphicsPathItem(parent), m_startPort(NULL), m_endPort(NULL)
+    : QGraphicsPathItem(parent)
 {
   setCacheMode(DeviceCoordinateCache);
   setPen(QPen(QColor(170, 170, 170), 2)); // GW-TODO: Expose to QStyle
@@ -31,51 +32,55 @@ QNodeViewConnection::QNodeViewConnection(QGraphicsItem* parent)
   setZValue(-1);
 }
 
+//------------------------------------------------------------------------------
 QNodeViewConnection::~QNodeViewConnection()
 {
-  if (m_startPort)
-    m_startPort->connections().remove(m_startPort->connections().indexOf(this));
-
-  if (m_endPort)
-    m_endPort->connections().remove(m_endPort->connections().indexOf(this));
+  if (_startPort && _endPort)
+  {
+    _startPort->connections().remove(_startPort->connections().indexOf(this));
+    _endPort->connections().remove(_endPort->connections().indexOf(this));
+  }
 }
 
+//------------------------------------------------------------------------------
 void QNodeViewConnection::setStartPosition(const QPointF& position)
 {
-  m_startPosition = position;
+  _startPosition = position;
 }
 
+//------------------------------------------------------------------------------
 void QNodeViewConnection::setEndPosition(const QPointF& position)
 {
-  m_endPosition = position;
+  _endPosition = position;
 }
 
+//------------------------------------------------------------------------------
 void QNodeViewConnection::setStartPort(QNodeViewPort* port)
 {
-  m_startPort = port;
-  m_startPort->connections().append(this);
+  _startPort = port;
 }
 
+//------------------------------------------------------------------------------
 void QNodeViewConnection::setEndPort(QNodeViewPort* port)
 {
-  m_endPort = port;
-  m_endPort->connections().append(this);
+  _endPort = port;
 }
 
+//------------------------------------------------------------------------------
 void QNodeViewConnection::updatePosition()
 {
-  m_startPosition = m_startPort->scenePos();
-  m_endPosition = m_endPort->scenePos();
+  _startPosition = _startPort->scenePos();
+  _endPosition = _endPort->scenePos();
 }
 
+//------------------------------------------------------------------------------
 void QNodeViewConnection::updatePath()
 {
   QPainterPath path;
 
   QVector<QPointF> curvePoints;
-  curvePoints.append(m_startPosition);
-
-  curvePoints.append(m_endPosition);
+  curvePoints.append(_startPosition);
+  curvePoints.append(_endPosition);
 
   for (qint32 index = 0; index < curvePoints.size() - 1; ++index)
   {
@@ -95,12 +100,51 @@ void QNodeViewConnection::updatePath()
   setPath(path);
 }
 
+//------------------------------------------------------------------------------
 QNodeViewPort* QNodeViewConnection::startPort() const
 {
-  return m_startPort;
+  return _startPort;
 }
 
+//------------------------------------------------------------------------------
 QNodeViewPort* QNodeViewConnection::endPort() const
 {
-  return m_endPort;
+  return _endPort;
+}
+
+//------------------------------------------------------------------------------
+QPointF QNodeViewConnection::startPosition() const
+{
+  return _startPosition;
+}
+
+//------------------------------------------------------------------------------
+QPointF QNodeViewConnection::endPosition() const
+{
+  return _endPosition;
+}
+
+//------------------------------------------------------------------------------
+void QNodeViewConnection::finalize()
+{
+  // make sure start pos points to the output node
+  if (!_startPort || !_endPort)
+    return;
+
+  if (!_startPort->isOutput())
+  {
+    std::swap(_startPort, _endPort);
+    std::swap(_startPosition, _endPosition);
+  }
+
+  _startPort->connections().append(this);
+  _endPort->connections().append(this);
+
+  updatePath();
+}
+
+//------------------------------------------------------------------------------
+int QNodeViewConnection::type() const
+{
+  return QNodeViewType_Connection;
 }

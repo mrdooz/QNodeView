@@ -76,7 +76,7 @@ ExampleMainWindow::ExampleMainWindow(QWidget* parent) : QMainWindow(parent)
   splitter->addWidget(listWidget);
   splitter->addWidget(_view);
   _view->setMinimumSize(400, 400);
-  //splitter->addWidget(new QPlainTextEdit());
+  // splitter->addWidget(new QPlainTextEdit());
 
   setCentralWidget(splitter);
 

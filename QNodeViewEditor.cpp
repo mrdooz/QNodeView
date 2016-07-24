@@ -39,6 +39,29 @@ void QNodeViewEditor::install(QGraphicsScene* scene)
 }
 
 //------------------------------------------------------------------------------
+bool QNodeViewEditor::validEndPort(QGraphicsItem* item)
+{
+  if (!_activeConnection)
+    return false;
+
+  if (!item || item->type() != QNodeViewType_Port)
+    return false;
+
+  QNodeViewPort* startPort = _activeConnection->startPort();
+  QNodeViewPort* endPort = (QNodeViewPort*)(item);
+
+  if (startPort == endPort || startPort->parameterType() != endPort->parameterType())
+    return false;
+
+  // make sure startPort is always the output port
+  if (!startPort->isOutput())
+    std::swap(startPort, endPort);
+
+  return startPort->block() != endPort->block() && startPort->isOutput() && !endPort->isOutput()
+         && endPort->connections().empty();
+}
+
+//------------------------------------------------------------------------------
 bool QNodeViewEditor::eventFilter(QObject* object, QEvent* event)
 {
   QGraphicsSceneMouseEvent* mouseEvent = static_cast<QGraphicsSceneMouseEvent*>(event);
@@ -63,6 +86,8 @@ bool QNodeViewEditor::eventFilter(QObject* object, QEvent* event)
             _activeConnection->setStartPosition(item->scenePos());
             _activeConnection->setEndPosition(mouseEvent->scenePos());
             _activeConnection->updatePath();
+            _activeConnection->startPort()->setState(QNodeViewPort::State::DragStart);
+
             return true;
           }
           else if (item->type() == QNodeViewType_Block)
@@ -77,7 +102,9 @@ bool QNodeViewEditor::eventFilter(QObject* object, QEvent* event)
         {
           QGraphicsItem* item = itemAt(mouseEvent->scenePos());
           if (!item)
+          {
             break;
+          }
 
           const QPoint menuPosition = mouseEvent->screenPos();
 
@@ -100,8 +127,24 @@ bool QNodeViewEditor::eventFilter(QObject* object, QEvent* event)
     {
       if (_activeConnection)
       {
+        if (_lastPort)
+          _lastPort->setState(QNodeViewPort::State::None);
+
         _activeConnection->setEndPosition(mouseEvent->scenePos());
         _activeConnection->updatePath();
+
+        QGraphicsItem* item = itemAt(mouseEvent->scenePos());
+        if (validEndPort(item))
+        {
+          ((QNodeViewPort*)item)->setState(QNodeViewPort::State::DragValid);
+          _lastPort = (QNodeViewPort*)item;
+        }
+        else if (item && item->type() == QNodeViewType_Port && item != _activeConnection->startPort())
+        {
+          ((QNodeViewPort*)item)->setState(QNodeViewPort::State::DragInvalid);
+          _lastPort = (QNodeViewPort*)item;
+        }
+
         return true;
       }
 
@@ -112,18 +155,19 @@ bool QNodeViewEditor::eventFilter(QObject* object, QEvent* event)
     {
       if (_activeConnection && mouseEvent->button() == Qt::LeftButton)
       {
+        _activeConnection->startPort()->setState(QNodeViewPort::State::None);
+
         QGraphicsItem* item = itemAt(mouseEvent->scenePos());
         if (item && item->type() == QNodeViewType_Port)
         {
-          QNodeViewPort* startPort = _activeConnection->startPort();
-          QNodeViewPort* endPort = static_cast<QNodeViewPort*>(item);
+          QNodeViewPort* endPort = (QNodeViewPort*)(item);
+          endPort->setState(QNodeViewPort::State::None);
 
-          if (startPort->block() != endPort->block() && startPort->isOutput() != endPort->isOutput()
-              && !startPort->isConnected(endPort))
+          if (validEndPort(endPort))
           {
             _activeConnection->setEndPosition(endPort->scenePos());
             _activeConnection->setEndPort(endPort);
-            _activeConnection->updatePath();
+            _activeConnection->finalize();
             _activeConnection = NULL;
             return true;
           }
@@ -134,7 +178,6 @@ bool QNodeViewEditor::eventFilter(QObject* object, QEvent* event)
         _activeConnection = NULL;
         return true;
       }
-
       break;
     }
   }

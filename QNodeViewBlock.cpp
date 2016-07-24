@@ -22,6 +22,7 @@
 #include "QNodeViewBlock.h"
 #include "QNodeViewPort.h"
 
+//------------------------------------------------------------------------------
 QNodeViewBlock::QNodeViewBlock(const QString& name, QGraphicsItem* parent)
     : QGraphicsPathItem(parent)
     , _width(100)
@@ -51,13 +52,10 @@ QNodeViewBlock::QNodeViewBlock(const QString& name, QGraphicsItem* parent)
   setGraphicsEffect(&_dropShadow);
 }
 
-QNodeViewBlock::~QNodeViewBlock()
+//------------------------------------------------------------------------------
+QNodeViewPort* QNodeViewBlock::addPort(const QString& name, bool isOutput, int parameterType)
 {
-}
-
-QNodeViewPort* QNodeViewBlock::addPort(const QString& name, bool isOutput)
-{
-  QNodeViewPort* port = new QNodeViewPort(this);
+  QNodeViewPort* port = new QNodeViewPort(parameterType, this);
   port->setName(name);
   port->setIsOutput(isOutput);
   port->setBlock(this);
@@ -96,16 +94,19 @@ QNodeViewPort* QNodeViewBlock::addPort(const QString& name, bool isOutput)
   return port;
 }
 
-void QNodeViewBlock::addInputPort(const QString& name, int /*type*/)
+//------------------------------------------------------------------------------
+void QNodeViewBlock::addInputPort(const QString& name, int parameterType)
 {
-  addPort(name, false);
+  addPort(name, false, parameterType);
 }
 
-void QNodeViewBlock::addOutputPort(const QString& name, int /*type*/)
+//------------------------------------------------------------------------------
+void QNodeViewBlock::addOutputPort(const QString& name, int parameterType)
 {
-  addPort(name, true);
+  addPort(name, true, parameterType);
 }
 
+//------------------------------------------------------------------------------
 void QNodeViewBlock::paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget)
 {
   Q_UNUSED(widget);
@@ -127,6 +128,7 @@ void QNodeViewBlock::paint(QPainter* painter, const QStyleOptionGraphicsItem* op
   painter->drawPath(path());
 }
 
+//------------------------------------------------------------------------------
 QNodeViewBlock* QNodeViewBlock::clone()
 {
   QNodeViewBlock* block = new QNodeViewBlock(NULL);
@@ -137,13 +139,14 @@ QNodeViewBlock* QNodeViewBlock::clone()
     if (childPort->type() == QNodeViewType_Port)
     {
       QNodeViewPort* clonePort = static_cast<QNodeViewPort*>(childPort);
-      block->addPort(clonePort->portName(), clonePort->isOutput());
+      block->addPort(clonePort->portName(), clonePort->isOutput(), clonePort->type());
     }
   }
 
   return block;
 }
 
+//------------------------------------------------------------------------------
 QVector<QNodeViewPort*> QNodeViewBlock::ports()
 {
   QVector<QNodeViewPort*> result;
@@ -156,3 +159,4 @@ QVector<QNodeViewPort*> QNodeViewBlock::ports()
 
   return result;
 }
+

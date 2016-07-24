@@ -21,12 +21,12 @@
 
 #pragma once
 
-
 class QPointF;
 class QGraphicsScene;
 class QGraphicsItem;
 class QNodeViewBlock;
 class QNodeViewConnection;
+class QNodeViewPort;
 
 class QNodeViewEditor : public QObject
 {
@@ -39,12 +39,17 @@ public:
   bool eventFilter(QObject* object, QEvent* event);
 
 private:
+
+  bool validEndPort(QGraphicsItem* item);
+
   QGraphicsItem* itemAt(const QPointF& point);
 
   void showBlockMenu(const QPoint& point, QNodeViewBlock* block);
   void showConnectionMenu(const QPoint& point, QNodeViewConnection* connection);
+  void updatePorts(QGraphicsItem* item);
 
-private:
   QGraphicsScene* _scene;
   QNodeViewConnection* _activeConnection;
+
+  QNodeViewPort* _lastPort = nullptr;
 };

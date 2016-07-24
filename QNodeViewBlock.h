@@ -28,11 +28,9 @@ class QNodeViewBlock : public QGraphicsPathItem
 {
 public:
   QNodeViewBlock(const QString& name, QGraphicsItem* parent = NULL);
-  virtual ~QNodeViewBlock();
 
-  QNodeViewPort* addPort(const QString& name, bool isOutput);
-  void addInputPort(const QString& name, int type);
-  void addOutputPort(const QString& name, int type);
+  void addInputPort(const QString& name, int paramterType);
+  void addOutputPort(const QString& name, int paramterType);
 
   void paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget);
 
@@ -45,6 +43,8 @@ public:
   }
 
 private:
+
+  QNodeViewPort* addPort(const QString& name, bool isOutput, int type);
 
   QGraphicsTextItem* _label;
   QGraphicsDropShadowEffect _dropShadow;

@@ -29,7 +29,7 @@ class QNodeViewConnection;
 class QNodeViewPort : public QGraphicsPathItem
 {
 public:
-  QNodeViewPort(QGraphicsItem* parent = NULL);
+  QNodeViewPort(int parameterType, QGraphicsItem* parent = NULL);
   virtual ~QNodeViewPort();
 
   void setBlock(QNodeViewBlock* block);
@@ -43,17 +43,23 @@ public:
   QVector<QNodeViewConnection*>& connections();
   QNodeViewBlock* block() const;
 
-  const QString& portName() const
-  {
-    return _name;
-  }
+  const QString& portName() const;
+  int type() const;
 
-  int type() const
+  int parameterType() const;
+
+  enum class State
   {
-    return QNodeViewType_Port;
-  }
+    None,
+    DragStart,
+    DragValid,
+    DragInvalid,
+  };
+
+  void setState(State state);
 
 private:
+
   QVariant itemChange(GraphicsItemChange change, const QVariant& value);
 
   QVector<QNodeViewConnection*> _connections;
@@ -65,4 +71,9 @@ private:
   qint32 _margin;
 
   bool _isOutput;
+  int _parameterType;
+
+  // if the port is part of any drag/drop operation, keep track of its state
+  State _state;
+
 };
