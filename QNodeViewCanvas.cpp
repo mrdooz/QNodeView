@@ -31,16 +31,6 @@ QNodeViewCanvas::QNodeViewCanvas(QGraphicsScene* scene, QWidget* parent) : QGrap
 }
 
 //------------------------------------------------------------------------------
-QNodeViewCanvas::~QNodeViewCanvas()
-{
-}
-
-//------------------------------------------------------------------------------
-void QNodeViewCanvas::contextMenuEvent(QContextMenuEvent* /*event*/)
-{
-}
-
-//------------------------------------------------------------------------------
 void QNodeViewCanvas::drawBackground(QPainter* painter, const QRectF& rect)
 {
   // GW-TODO: Expose this to QStyle
@@ -77,11 +67,6 @@ void QNodeViewCanvas::dragEnterEvent(QDragEnterEvent* event)
 }
 
 //------------------------------------------------------------------------------
-void QNodeViewCanvas::dragLeaveEvent(QDragLeaveEvent* /*event*/)
-{
-}
-
-//------------------------------------------------------------------------------
 void QNodeViewCanvas::dragMoveEvent(QDragMoveEvent* event)
 {
   if (event->mimeData()->hasText())
@@ -103,19 +88,9 @@ void QNodeViewCanvas::dropEvent(QDropEvent* event)
 
   const BlockDef& blockDef = it->second;
 
-  QNodeViewBlock* block = new QNodeViewBlock(blockDef.name.c_str());
+  QNodeViewBlock* block = new QNodeViewBlock(blockDef);
   scene()->addItem(block);
-
-  for (const BlockDef::Node& input : blockDef.inputs)
-  {
-    block->addInputPort(input.name.c_str(), input.param.id);
-  }
-
-  for (const BlockDef::Node& output : blockDef.outputs)
-  {
-    block->addOutputPort(output.name.c_str(), output.param.id);
-  }
-
+  block->init();
   block->setPos(mapToScene(event->pos()));
 }
 

@@ -21,30 +21,31 @@
 
 #pragma once
 #include "QNodeViewCommon.h"
+#include "block_loader.hpp"
 
 class QNodeViewPort;
 
 class QNodeViewBlock : public QGraphicsPathItem
 {
 public:
-  QNodeViewBlock(const QString& name, QGraphicsItem* parent = NULL);
+  QNodeViewBlock(const BlockDef& blockDef, QGraphicsItem* parent = NULL);
+
+  void init();
+
+  void paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget);
+
+  int type() const;
+
+  void propertyWidget();
+
+private:
 
   void addInputPort(const QString& name, int paramterType);
   void addOutputPort(const QString& name, int paramterType);
 
-  void paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget);
-
-  QNodeViewBlock* clone();
-  QVector<QNodeViewPort*> ports();
-
-  int type() const
-  {
-    return QNodeViewType_Block;
-  }
-
-private:
-
   QNodeViewPort* addPort(const QString& name, bool isOutput, int type);
+
+  BlockDef _blockDef;
 
   QGraphicsTextItem* _label;
   QGraphicsDropShadowEffect _dropShadow;
@@ -52,4 +53,5 @@ private:
   qint32 _height;
   qint32 _horizontalMargin;
   qint32 _verticalMargin;
+
 };

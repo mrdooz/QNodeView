@@ -51,6 +51,9 @@
     <ClCompile Include="block_loader.cpp">
       <Filter>Generated Files</Filter>
     </ClCompile>
+    <ClCompile Include="block_widgets.cpp">
+      <Filter>Generated Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="Example.h">
@@ -79,13 +82,7 @@
     <ClCompile Include="debug\moc_Example.cpp">
       <Filter>Generated Files</Filter>
     </ClCompile>
-    <ClCompile Include="release\moc_Example.cpp">
-      <Filter>Generated Files</Filter>
-    </ClCompile>
     <ClCompile Include="debug\moc_QNodeViewEditor.cpp">
-      <Filter>Generated Files</Filter>
-    </ClCompile>
-    <ClCompile Include="release\moc_QNodeViewEditor.cpp">
       <Filter>Generated Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -94,6 +91,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="block_loader.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="block_widgets.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

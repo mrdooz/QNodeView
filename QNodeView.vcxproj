@@ -146,6 +146,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="block_loader.cpp" />
+    <ClCompile Include="block_widgets.cpp" />
     <ClCompile Include="Example.cpp" />
     <ClCompile Include="precompiled.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
@@ -169,6 +170,7 @@
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">debug\moc_Example.cpp;%(Outputs)</Outputs>
     </CustomBuild>
     <ClInclude Include="block_loader.hpp" />
+    <ClInclude Include="block_widgets.hpp" />
     <ClInclude Include="precompiled.hpp" />
     <ClInclude Include="QNodeViewBlock.h" />
     <ClInclude Include="QNodeViewCanvas.h" />
@@ -190,14 +192,8 @@
     <ClCompile Include="debug\moc_Example.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="release\moc_Example.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-    </ClCompile>
     <ClCompile Include="debug\moc_QNodeViewEditor.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="release\moc_QNodeViewEditor.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
     </ClCompile>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

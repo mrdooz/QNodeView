@@ -24,35 +24,21 @@
 #include "QNodeViewCanvas.h"
 #include "QNodeViewEditor.h"
 #include "block_loader.hpp"
+#include "block_widgets.hpp"
+
+ExampleMainWindow* g_mainWindow;
 
 int main(int argc, char* argv[])
 {
   QApplication application(argc, argv);
-  ExampleMainWindow window;
-  window.resize(640, 480);
-  window.show();
-  return application.exec();
+  application.setStyle(QStyleFactory::create("Fusion"));
+  g_mainWindow = new ExampleMainWindow();
+  g_mainWindow->resize(640, 480);
+  g_mainWindow->show();
+  int res = application.exec();
+  delete g_mainWindow;
+  return res;
 }
-
-struct BlockListWidget : public QListWidget
-{
-  using QListWidget::QListWidget;
-  virtual QMimeData* mimeData(const QList<QListWidgetItem*>& items) const
-  {
-    QListWidgetItem* item = items.front();
-    QMimeData* data = new QMimeData();
-    data->setText(item->text());
-    return data;
-  }
-
-  virtual QMimeData* mimeData(const QList<QListWidgetItem*> items) const
-  {
-    QListWidgetItem* item = items.front();
-    QMimeData* data = new QMimeData();
-    data->setText(item->text());
-    return data;
-  }
-};
 
 ExampleMainWindow::ExampleMainWindow(QWidget* parent) : QMainWindow(parent)
 {
@@ -63,6 +49,7 @@ ExampleMainWindow::ExampleMainWindow(QWidget* parent) : QMainWindow(parent)
   _scene = new QGraphicsScene();
   _view = new QNodeViewCanvas(_scene, this);
   _view->setAcceptDrops(true);
+  _view->setMinimumSize(400, 400);
 
   QSplitter* splitter = new QSplitter();
   QListWidget* listWidget = new BlockListWidget(this);
@@ -75,11 +62,10 @@ ExampleMainWindow::ExampleMainWindow(QWidget* parent) : QMainWindow(parent)
 
   splitter->addWidget(listWidget);
   splitter->addWidget(_view);
-  _view->setMinimumSize(400, 400);
-  // splitter->addWidget(new QPlainTextEdit());
+  _propertyWidget = new PropertyWidget();
+  splitter->addWidget(_propertyWidget);
 
   setCentralWidget(splitter);
 
-  _editor = new QNodeViewEditor(this);
-  _editor->install(_scene);
+  _editor = new QNodeViewEditor(_scene, this);
 }

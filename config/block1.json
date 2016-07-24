@@ -22,10 +22,12 @@
                 {
                     "name": "col",
                     "type": "color"
-                },
+                }
+            ],
+            "params": [
                 {
-                    "name": "funky",
-                    "type": "float"
+                    "name": "col",
+                    "type": "color"
                 }
             ]
         },
@@ -50,7 +52,17 @@
                     "name": "col",
                     "type": "color"
                 }
+            ],
+            "params": [
+                {
+                    "name": "blend",
+                    "type": "float",
+                    "default_value": 0.2,
+                    "min_value": 0,
+                    "max_value": 1
+                }
             ]
+
         }
     ]
 }

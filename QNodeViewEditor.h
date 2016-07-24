@@ -33,20 +33,17 @@ class QNodeViewEditor : public QObject
   Q_OBJECT
 
 public:
-  explicit QNodeViewEditor(QObject* parent = NULL);
-
-  void install(QGraphicsScene* scene);
-  bool eventFilter(QObject* object, QEvent* event);
+  explicit QNodeViewEditor(QGraphicsScene* scene, QObject* parent = NULL);
 
 private:
 
+  bool eventFilter(QObject* object, QEvent* event);
   bool validEndPort(QGraphicsItem* item);
 
   QGraphicsItem* itemAt(const QPointF& point);
 
   void showBlockMenu(const QPoint& point, QNodeViewBlock* block);
   void showConnectionMenu(const QPoint& point, QNodeViewConnection* connection);
-  void updatePorts(QGraphicsItem* item);
 
   QGraphicsScene* _scene;
   QNodeViewConnection* _activeConnection;

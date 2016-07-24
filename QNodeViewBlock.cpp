@@ -21,10 +21,13 @@
 
 #include "QNodeViewBlock.h"
 #include "QNodeViewPort.h"
+#include "block_widgets.hpp"
+#include "Example.h"
 
 //------------------------------------------------------------------------------
-QNodeViewBlock::QNodeViewBlock(const QString& name, QGraphicsItem* parent)
+QNodeViewBlock::QNodeViewBlock(const BlockDef& blockDef, QGraphicsItem* parent)
     : QGraphicsPathItem(parent)
+    , _blockDef(blockDef)
     , _width(100)
     , _height(5)
     , _horizontalMargin(20)
@@ -37,7 +40,7 @@ QNodeViewBlock::QNodeViewBlock(const QString& name, QGraphicsItem* parent)
 
   _label = new QGraphicsTextItem(this);
   _label->setCacheMode(DeviceCoordinateCache);
-  _label->setPlainText(name);
+  _label->setPlainText(blockDef.name.c_str());
 
   QPainterPath path;
   path.addRoundedRect(-50, -15, 100, 30, 5, 5);
@@ -50,6 +53,20 @@ QNodeViewBlock::QNodeViewBlock(const QString& name, QGraphicsItem* parent)
   _dropShadow.setYOffset(5.0);
 
   setGraphicsEffect(&_dropShadow);
+}
+
+//------------------------------------------------------------------------------
+void QNodeViewBlock::init()
+{
+  for (const BlockDef::Port& input : _blockDef.inputs)
+  {
+    addInputPort(input.name.c_str(), input.param.id);
+  }
+
+  for (const BlockDef::Port& output : _blockDef.outputs)
+  {
+    addOutputPort(output.name.c_str(), output.param.id);
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -129,34 +146,49 @@ void QNodeViewBlock::paint(QPainter* painter, const QStyleOptionGraphicsItem* op
 }
 
 //------------------------------------------------------------------------------
-QNodeViewBlock* QNodeViewBlock::clone()
+int QNodeViewBlock::type() const
 {
-  QNodeViewBlock* block = new QNodeViewBlock(NULL);
-  scene()->addItem(block);
-
-  for (QGraphicsItem* childPort : childItems())
-  {
-    if (childPort->type() == QNodeViewType_Port)
-    {
-      QNodeViewPort* clonePort = static_cast<QNodeViewPort*>(childPort);
-      block->addPort(clonePort->portName(), clonePort->isOutput(), clonePort->type());
-    }
-  }
-
-  return block;
+  return QNodeViewType_Block;
 }
 
 //------------------------------------------------------------------------------
-QVector<QNodeViewPort*> QNodeViewBlock::ports()
+void QNodeViewBlock::propertyWidget()
 {
-  QVector<QNodeViewPort*> result;
+  PropertyWidget* prop = g_mainWindow->_propertyWidget;
 
-  for (QGraphicsItem* childItem : childItems())
+  prop->clearLayout();
+
+  for (const BlockDef::Param& param : _blockDef.params)
   {
-    if (childItem->type() == QNodeViewType_Port)
-      result.append(static_cast<QNodeViewPort*>(childItem));
+    switch (param.type)
+    {
+      case BlockDef::Param::Bool:
+      {
+        break;
+      }
+      case BlockDef::Param::Int:
+      {
+        break;
+      }
+      case BlockDef::Param::Float:
+      {
+        prop->addWidget(new FloatProperty(param));
+        break;
+      }
+      case BlockDef::Param::Float2:
+      {
+        break;
+      }
+      case BlockDef::Param::Float3:
+      {
+        break;
+      }
+      case BlockDef::Param::Color:
+      {
+        prop->addWidget(new ColorProperty(param));
+        break;
+      }
+    }
   }
 
-  return result;
 }
-

@@ -10,14 +10,35 @@ struct BlockDef
 {
   string name;
 
-  struct Node
+  struct Port
   {
     string name;
     BlockParam param;
   };
 
-  vector<Node> inputs;
-  vector<Node> outputs;
+  struct Param
+  {
+    enum Type
+    {
+      Unknown,
+      Bool,
+      Int,
+      Float,
+      Float2,
+      Float3,
+      Color,
+    };
+    string name;
+    Type type;
+    QVariant defaultValue;
+    QVariant minValue, maxValue;
+  };
+
+  static Param::Type StringToParamType(const QString& str);
+
+  vector<Port> inputs;
+  vector<Port> outputs;
+  vector<Param> params;
 };
 
 bool loadBlockDesc(const string& filename);

@@ -5,6 +5,31 @@ vector<BlockParam> params;
 unordered_map<string, BlockDef> blockDefs;
 
 //------------------------------------------------------------------------------
+BlockDef::Param::Type BlockDef::StringToParamType(const QString& str)
+{
+  QString tmp = str.toLower();
+  if (tmp == "bool")
+    return Param::Bool;
+
+  if (tmp == "int")
+    return Param::Int;
+
+  if (tmp == "float")
+    return Param::Float;
+
+  if (tmp == "float2")
+    return Param::Float2;
+
+  if (tmp == "float3")
+    return Param::Float3;
+
+  if (tmp == "color")
+    return Param::Color;
+
+  return Param::Unknown;
+}
+
+//------------------------------------------------------------------------------
 bool loadBlockDesc(const string& filename)
 {
   QFile file(filename.c_str());
@@ -66,7 +91,7 @@ bool loadBlockDesc(const string& filename)
         qWarning() << "Unknown parameter type in input: " << type;
         return false;
       }
-      blockDef.inputs.push_back(BlockDef::Node{ inputName.toStdString(), it->second });
+      blockDef.inputs.push_back(BlockDef::Port{ inputName.toStdString(), it->second });
     }
 
     // read outputs
@@ -83,7 +108,53 @@ bool loadBlockDesc(const string& filename)
         return false;
       }
 
-      blockDef.outputs.push_back(BlockDef::Node{ outputName.toStdString(), it->second });
+      blockDef.outputs.push_back(BlockDef::Port{ outputName.toStdString(), it->second });
+    }
+
+    // read params
+    for (const QJsonValue& valParam : objBlock["params"].toArray())
+    {
+      QJsonObject objParam = valParam.toObject();
+      QString paramName = objParam["name"].toString();
+      QString strType = objParam["type"].toString();
+
+      BlockDef::Param param;
+      param.name = objParam["name"].toString().toStdString();
+      param.type = BlockDef::StringToParamType(strType);
+
+      if (param.type == BlockDef::Param::Unknown)
+      {
+        qWarning() << "Unknown parameter type in output: " << strType;
+        return false;
+      }
+
+      // just allow int and float default/min/max values
+
+      if (objParam.contains("default_value"))
+      {
+        if (param.type == BlockDef::Param::Int)
+          param.defaultValue = QVariant(objParam["default_value"].toInt());
+        else
+          param.defaultValue = QVariant((float)objParam["default_value"].toDouble());
+      }
+
+      if (objParam.contains("min_value"))
+      {
+        if (param.type == BlockDef::Param::Int)
+          param.minValue = QVariant(objParam["min_value"].toInt());
+        else
+          param.minValue = QVariant((float)objParam["min_value"].toDouble());
+      }
+
+      if (objParam.contains("max_value"))
+      {
+        if (param.type == BlockDef::Param::Int)
+          param.maxValue = QVariant(objParam["max_value"].toInt());
+        else
+          param.maxValue = QVariant((float)objParam["max_value"].toDouble());
+      }
+
+      blockDef.params.push_back(param);
     }
 
     blockDefs[blockDef.name] = blockDef;

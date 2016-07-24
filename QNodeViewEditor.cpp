@@ -19,23 +19,17 @@
   @date    January 19, 2014
 */
 
-#include "QNodeViewEditor.h"
+#include "QNodeViewBlock.h"
 #include "QNodeViewCommon.h"
 #include "QNodeViewConnection.h"
+#include "QNodeViewEditor.h"
 #include "QNodeViewPort.h"
-#include "QNodeViewBlock.h"
 
 //------------------------------------------------------------------------------
-QNodeViewEditor::QNodeViewEditor(QObject* parent) : QObject(parent), _activeConnection(NULL)
+QNodeViewEditor::QNodeViewEditor(QGraphicsScene* scene, QObject* parent)
+    : QObject(parent), _scene(scene), _activeConnection(NULL)
 {
-}
-
-//------------------------------------------------------------------------------
-void QNodeViewEditor::install(QGraphicsScene* scene)
-{
-  Q_ASSERT(scene);
   scene->installEventFilter(this);
-  _scene = scene;
 }
 
 //------------------------------------------------------------------------------
@@ -92,7 +86,8 @@ bool QNodeViewEditor::eventFilter(QObject* object, QEvent* event)
           }
           else if (item->type() == QNodeViewType_Block)
           {
-            // GW-TODO: Some form of property editor callback?
+            QNodeViewBlock* block = (QNodeViewBlock*)item;
+            block->propertyWidget();
           }
 
           break;
@@ -190,9 +185,7 @@ QGraphicsItem* QNodeViewEditor::itemAt(const QPointF& point)
 {
   Q_ASSERT(_scene);
 
-  QList<QGraphicsItem*> items = _scene->items(QRectF(point - QPointF(1, 1), QSize(3, 3)));
-
-  Q_FOREACH (QGraphicsItem* item, items)
+  for (QGraphicsItem* item : _scene->items(QRectF(point - QPointF(1, 1), QSize(3, 3))))
   {
     // Filter out non-user scene items
     if (item->type() > QGraphicsItem::UserType)

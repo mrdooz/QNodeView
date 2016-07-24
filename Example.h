@@ -25,6 +25,7 @@
 #include <QtWidgets>
 
 class QNodeViewEditor;
+struct PropertyWidget;
 
 class ExampleMainWindow : public QMainWindow
 {
@@ -33,6 +34,8 @@ class ExampleMainWindow : public QMainWindow
 public:
   explicit ExampleMainWindow(QWidget* parent = NULL);
 
+  PropertyWidget* _propertyWidget;
+
 private:
   void createMenus();
 
@@ -40,4 +43,7 @@ private:
   QMenu* _fileMenu;
   QGraphicsView* _view;
   QGraphicsScene* _scene;
+
 };
+
+extern ExampleMainWindow* g_mainWindow;
