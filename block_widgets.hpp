@@ -7,12 +7,18 @@ struct BlockListWidget : public QListWidget
   using QListWidget::QListWidget;
   virtual QMimeData* mimeData(const QList<QListWidgetItem*>& items) const;
   virtual QMimeData* mimeData(const QList<QListWidgetItem*> items) const;
+
+  QSize minimumSizeHint() const;
+  QSize sizeHint() const;
 };
 
 //------------------------------------------------------------------------------
 struct PropertyWidget : public QDialog
 {
   PropertyWidget(QWidget* parent = nullptr);
+
+  QSize minimumSizeHint() const;
+  QSize sizeHint() const;
 
   void clearLayout();
   void addWidget(QWidget* widget);
@@ -22,27 +28,24 @@ struct PropertyWidget : public QDialog
 };
 
 //------------------------------------------------------------------------------
-class RenderArea : public QWidget
+struct RenderArea : public QWidget
 {
-public:
+  RenderArea(QWidget *parent = 0);
 
   QSize RenderArea::minimumSizeHint() const;
   QSize RenderArea::sizeHint() const;
 
-  RenderArea(QWidget *parent = 0);
+  void paintEvent(QPaintEvent *event) Q_DECL_OVERRIDE;
 
   QColor _color;
-
-private:
-  void paintEvent(QPaintEvent *event) Q_DECL_OVERRIDE;
 };
 
 //------------------------------------------------------------------------------
 struct FloatProperty : public QWidget
 {
-  FloatProperty(const BlockDef::Param& param, QWidget* parent = nullptr);
-  void setValue(int value);
+  FloatProperty(BlockDef::Param* _param, QWidget* parent = nullptr);
 
+  BlockDef::Param* _param;
   QString _name;
   float _curValue, _minValue, _maxValue;
   QSlider* _slider;
@@ -52,7 +55,8 @@ struct FloatProperty : public QWidget
 //------------------------------------------------------------------------------
 struct ColorProperty : public QWidget
 {
-  ColorProperty(const BlockDef::Param& param, QWidget* parent = nullptr);
+  ColorProperty(BlockDef::Param* param, QWidget* parent = nullptr);
+  BlockDef::Param* _param;
   RenderArea* _renderArea;
   QColor _color;
 };

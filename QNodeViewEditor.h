@@ -35,15 +35,15 @@ class QNodeViewEditor : public QObject
 public:
   explicit QNodeViewEditor(QGraphicsScene* scene, QObject* parent = NULL);
 
+  void loadScene();
+  void saveScene();
+
 private:
 
   bool eventFilter(QObject* object, QEvent* event);
   bool validEndPort(QGraphicsItem* item);
 
   QGraphicsItem* itemAt(const QPointF& point);
-
-  void showBlockMenu(const QPoint& point, QNodeViewBlock* block);
-  void showConnectionMenu(const QPoint& point, QNodeViewConnection* connection);
 
   QGraphicsScene* _scene;
   QNodeViewConnection* _activeConnection;

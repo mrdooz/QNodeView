@@ -30,8 +30,9 @@ struct BlockDef
     };
     string name;
     Type type;
-    QVariant defaultValue;
+    QVariant value;
     QVariant minValue, maxValue;
+    QVariant defaultValue;
   };
 
   static Param::Type StringToParamType(const QString& str);

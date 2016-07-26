@@ -152,13 +152,12 @@ int QNodeViewBlock::type() const
 }
 
 //------------------------------------------------------------------------------
-void QNodeViewBlock::propertyWidget()
+void QNodeViewBlock::updatePropertyWidget()
 {
   PropertyWidget* prop = g_mainWindow->_propertyWidget;
-
   prop->clearLayout();
 
-  for (const BlockDef::Param& param : _blockDef.params)
+  for (BlockDef::Param& param : _blockDef.params)
   {
     switch (param.type)
     {
@@ -172,7 +171,7 @@ void QNodeViewBlock::propertyWidget()
       }
       case BlockDef::Param::Float:
       {
-        prop->addWidget(new FloatProperty(param));
+        prop->addWidget(new FloatProperty(&param));
         break;
       }
       case BlockDef::Param::Float2:
@@ -185,7 +184,7 @@ void QNodeViewBlock::propertyWidget()
       }
       case BlockDef::Param::Color:
       {
-        prop->addWidget(new ColorProperty(param));
+        prop->addWidget(new ColorProperty(&param));
         break;
       }
     }

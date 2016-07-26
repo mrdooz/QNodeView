@@ -38,12 +38,13 @@ public:
 
 private:
   void createMenus();
+  void loadFile();
+  void saveFile();
 
   QNodeViewEditor* _editor;
   QMenu* _fileMenu;
   QGraphicsView* _view;
   QGraphicsScene* _scene;
-
 };
 
 extern ExampleMainWindow* g_mainWindow;

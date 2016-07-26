@@ -36,7 +36,7 @@ public:
 
   int type() const;
 
-  void propertyWidget();
+  void updatePropertyWidget();
 
 private:
 

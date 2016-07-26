@@ -24,6 +24,8 @@
 #include "QNodeViewConnection.h"
 #include "QNodeViewEditor.h"
 #include "QNodeViewPort.h"
+#include "Example.h"
+#include "block_widgets.hpp"
 
 //------------------------------------------------------------------------------
 QNodeViewEditor::QNodeViewEditor(QGraphicsScene* scene, QObject* parent)
@@ -70,7 +72,10 @@ bool QNodeViewEditor::eventFilter(QObject* object, QEvent* event)
         {
           QGraphicsItem* item = itemAt(mouseEvent->scenePos());
           if (!item)
+          {
+            g_mainWindow->_propertyWidget->clearLayout();
             break;
+          }
 
           if (item->type() == QNodeViewType_Port)
           {
@@ -87,7 +92,7 @@ bool QNodeViewEditor::eventFilter(QObject* object, QEvent* event)
           else if (item->type() == QNodeViewType_Block)
           {
             QNodeViewBlock* block = (QNodeViewBlock*)item;
-            block->propertyWidget();
+            block->updatePropertyWidget();
           }
 
           break;
@@ -97,22 +102,10 @@ bool QNodeViewEditor::eventFilter(QObject* object, QEvent* event)
         {
           QGraphicsItem* item = itemAt(mouseEvent->scenePos());
           if (!item)
-          {
             break;
-          }
 
           const QPoint menuPosition = mouseEvent->screenPos();
-
-          if (item->type() == QNodeViewType_Connection)
-          {
-            showConnectionMenu(menuPosition, static_cast<QNodeViewConnection*>(item));
-            return true;
-          }
-          else if (item->type() == QNodeViewType_Block)
-          {
-            showBlockMenu(menuPosition, static_cast<QNodeViewBlock*>(item));
-            return true;
-          }
+          // TODO: show context menus?
           break;
         }
       }
@@ -139,10 +132,8 @@ bool QNodeViewEditor::eventFilter(QObject* object, QEvent* event)
           ((QNodeViewPort*)item)->setState(QNodeViewPort::State::DragInvalid);
           _lastPort = (QNodeViewPort*)item;
         }
-
         return true;
       }
-
       break;
     }
 
@@ -197,25 +188,34 @@ QGraphicsItem* QNodeViewEditor::itemAt(const QPointF& point)
 }
 
 //------------------------------------------------------------------------------
-void QNodeViewEditor::showBlockMenu(const QPoint& point, QNodeViewBlock* block)
+void QNodeViewEditor::loadScene()
 {
-  QMenu menu;
-  QAction* deleteAction = menu.addAction("Delete");
-  QAction* selection = menu.exec(point);
-  if (selection == deleteAction)
-  {
-    delete block;
-  }
 }
 
 //------------------------------------------------------------------------------
-void QNodeViewEditor::showConnectionMenu(const QPoint& point, QNodeViewConnection* connection)
+void QNodeViewEditor::saveScene()
 {
-  QMenu menu;
-  QAction* deleteAction = menu.addAction("Delete");
-  QAction* selection = menu.exec(point);
-  if (selection == deleteAction)
+  for (QGraphicsItem* item : _scene->items())
   {
-    delete connection;
+    switch (item->type())
+    {
+      case QNodeViewType_Port:
+      {
+        int a = 10;
+        break;
+      }
+
+      case QNodeViewType_Connection:
+      {
+        int a = 10;
+        break;
+      }
+
+      case QNodeViewType_Block:
+      {
+        int a = 10;
+        break;
+      }
+    }
   }
 }
