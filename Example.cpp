@@ -33,7 +33,7 @@ int main(int argc, char* argv[])
   QApplication application(argc, argv);
   application.setStyle(QStyleFactory::create("Fusion"));
   g_mainWindow = new ExampleMainWindow();
-  g_mainWindow->resize(640, 480);
+  g_mainWindow->resize(1200, 600);
   g_mainWindow->show();
   int res = application.exec();
   delete g_mainWindow;
@@ -49,7 +49,7 @@ ExampleMainWindow::ExampleMainWindow(QWidget* parent) : QMainWindow(parent)
   _scene = new QGraphicsScene();
   _view = new QNodeViewCanvas(_scene, this);
   _view->setAcceptDrops(true);
-  _view->setMinimumSize(400, 400);
+  _view->setMinimumSize(600, 600);
 
   QSplitter* splitter = new QSplitter();
   QListWidget* listWidget = new BlockListWidget(this);
@@ -67,5 +67,40 @@ ExampleMainWindow::ExampleMainWindow(QWidget* parent) : QMainWindow(parent)
 
   setCentralWidget(splitter);
 
+  createMenus();
+
   _editor = new QNodeViewEditor(_scene, this);
+}
+
+void ExampleMainWindow::createMenus()
+{
+  QAction* quitAction = new QAction(tr("E&xit"), this);
+  quitAction->setShortcuts(QKeySequence::Quit);
+  quitAction->setStatusTip(tr("Exit"));
+  connect(quitAction, SIGNAL(triggered()), qApp, SLOT(quit()));
+
+  QAction* loadAction = new QAction(tr("&Load"), this);
+  loadAction->setShortcuts(QKeySequence::Open);
+  loadAction->setStatusTip(tr("Load node view from file"));
+  connect(loadAction, &QAction::triggered, this, &ExampleMainWindow::loadFile);
+
+  QAction* saveAction = new QAction(tr("&Save"), this);
+  saveAction->setShortcuts(QKeySequence::Save);
+  saveAction->setStatusTip(tr("Save node view to file"));
+  connect(saveAction, &QAction::triggered, this, &ExampleMainWindow::saveFile);
+
+  _fileMenu = menuBar()->addMenu(tr("&File"));
+  _fileMenu->addAction(loadAction);
+  _fileMenu->addAction(saveAction);
+  _fileMenu->addSeparator();
+  _fileMenu->addAction(quitAction);
+}
+
+void ExampleMainWindow::loadFile()
+{
+}
+
+void ExampleMainWindow::saveFile()
+{
+  _editor->saveScene();
 }
