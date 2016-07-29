@@ -48,10 +48,16 @@
     <ClCompile Include="precompiled.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="block_widgets.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="block_loader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="generated\moc_Example.cpp">
       <Filter>Generated Files</Filter>
     </ClCompile>
-    <ClCompile Include="block_widgets.cpp">
+    <ClCompile Include="generated\moc_QNodeViewEditor.cpp">
       <Filter>Generated Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -77,14 +83,6 @@
     <ClInclude Include="QNodeViewPort.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="debug\moc_Example.cpp">
-      <Filter>Generated Files</Filter>
-    </ClCompile>
-    <ClCompile Include="debug\moc_QNodeViewEditor.cpp">
-      <Filter>Generated Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="precompiled.hpp">

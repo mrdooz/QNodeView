@@ -55,6 +55,12 @@
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">QNodeView</TargetName>
     <IgnoreImportLibrary Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</IgnoreImportLibrary>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <IncludePath>$(IncludePath)</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <IncludePath>C:\Qt\5.7\msvc2015_64\include;C:\Qt\5.7\msvc2015_64\include\qtgui;C:\Qt\5.7\msvc2015_64\include\QtCore;C:\Qt\5.7\msvc2015_64\include\QtWidgets;$(IncludePath)</IncludePath>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
       <AdditionalIncludeDirectories>.;D:\qt\5.7\msvc2015_64\include;D:\qt\5.7\msvc2015_64\include\QtWidgets;D:\qt\5.7\msvc2015_64\include\QtGui;D:\qt\5.7\msvc2015_64\include\QtANGLE;D:\qt\5.7\msvc2015_64\include\QtCore;release;D:\qt\5.7\msvc2015_64\mkspecs\win32-msvc2015;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -103,7 +109,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>.;D:\qt\5.7\msvc2015_64\include;D:\qt\5.7\msvc2015_64\include\QtWidgets;D:\qt\5.7\msvc2015_64\include\QtGui;D:\qt\5.7\msvc2015_64\include\QtANGLE;D:\qt\5.7\msvc2015_64\include\QtCore;debug;D:\qt\5.7\msvc2015_64\mkspecs\win32-msvc2015;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.;$(QT_SDK)\include;$(QT_SDK)\include\QtWidgets;$(QT_SDK)\include\QtGui;$(QT_SDK)\include\QtANGLE;$(QT_SDK)\include\QtCore;debug;$(QT_SDK)\mkspecs\win32-msvc2015;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>-Zc:strictStrings -Zc:throwingNew -w34100 -w34189 -w44996 -w44456 -w44457 -w44458 %(AdditionalOptions)</AdditionalOptions>
       <AssemblerListingLocation>debug\</AssemblerListingLocation>
       <BrowseInformation>false</BrowseInformation>
@@ -124,8 +130,8 @@
       <ForcedIncludeFiles>precompiled.hpp</ForcedIncludeFiles>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>D:\qt\5.7\msvc2015_64\lib\qtmaind.lib;shell32.lib;D:\qt\5.7\msvc2015_64\lib\Qt5Widgetsd.lib;D:\qt\5.7\msvc2015_64\lib\Qt5Guid.lib;D:\qt\5.7\msvc2015_64\lib\Qt5Cored.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>D:\qt\5.7\msvc2015_64\lib;C:\utils\postgresql\pgsql\lib;C:\utils\my_sql\my_sql\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>c:\qt\5.7\msvc2015_64\lib\qtmaind.lib;shell32.lib;c:\qt\5.7\msvc2015_64\lib\Qt5Widgetsd.lib;c:\qt\5.7\msvc2015_64\lib\Qt5Guid.lib;c:\qt\5.7\msvc2015_64\lib\Qt5Cored.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(QT_SDK)\lib;C:\utils\postgresql\pgsql\lib;C:\utils\my_sql\my_sql\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalOptions>"/MANIFESTDEPENDENCY:type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' publicKeyToken='6595b64144ccf1df' language='*' processorArchitecture='*'" %(AdditionalOptions)</AdditionalOptions>
       <DataExecutionPrevention>true</DataExecutionPrevention>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -148,6 +154,8 @@
     <ClCompile Include="block_loader.cpp" />
     <ClCompile Include="block_widgets.cpp" />
     <ClCompile Include="Example.cpp" />
+    <ClCompile Include="generated\moc_Example.cpp" />
+    <ClCompile Include="generated\moc_QNodeViewEditor.cpp" />
     <ClCompile Include="precompiled.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
@@ -187,14 +195,6 @@
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">debug\moc_QNodeViewEditor.cpp;%(Outputs)</Outputs>
     </CustomBuild>
     <ClInclude Include="QNodeViewPort.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="debug\moc_Example.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="debug\moc_QNodeViewEditor.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-    </ClCompile>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets" />
