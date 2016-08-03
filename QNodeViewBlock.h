@@ -38,6 +38,9 @@ public:
 
   void updatePropertyWidget();
 
+  void save(QJsonObject* root);
+  void load();
+
 private:
 
   void addInputPort(const QString& name, int paramterType);

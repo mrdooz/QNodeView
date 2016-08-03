@@ -189,5 +189,84 @@ void QNodeViewBlock::updatePropertyWidget()
       }
     }
   }
-
 }
+
+//------------------------------------------------------------------------------
+void QNodeViewBlock::save(QJsonObject* root)
+{
+  QJsonObject obj;
+  QString name = _blockDef.name.c_str();
+  obj["name"] = name;
+
+  QJsonObject objPos;
+  objPos["x"] = pos().x();
+  objPos["y"] = pos().y();
+  obj["pos"] = objPos;
+
+  QJsonArray params;
+  for (const BlockDef::Param& param : _blockDef.params)
+  {
+    QJsonObject objParam;
+    QJsonObject objValue;
+    switch (param.type)
+    {
+      case BlockDef::Param::Unknown:
+        break;
+      case BlockDef::Param::Bool:
+        objParam["type"] = "bool";
+        objParam["value"] = param.value.toBool();
+        break;
+      case BlockDef::Param::Int:
+        objParam["type"] = "int";
+        objParam["value"] = param.value.toInt();
+        break;
+      case BlockDef::Param::Float:
+        objParam["type"] = "float";
+        objParam["value"] = param.value.toFloat();
+        break;
+      case BlockDef::Param::Float2:
+      {
+        // http://stackoverflow.com/questions/24362946/how-can-i-cast-a-qvariant-to-custom-class
+        objParam["type"] = "float2";
+        Float2 value = param.value.value<Float2>();
+        objValue["x"] = value.x;
+        objValue["y"] = value.y;
+        objParam["value"] = objValue;
+        break;
+      }
+      case BlockDef::Param::Float3:
+      {
+        objParam["type"] = "float3";
+        Float3 value = param.value.value<Float3>();
+        objValue["x"] = value.x;
+        objValue["y"] = value.y;
+        objValue["z"] = value.z;
+        objParam["value"] = objValue;
+        break;
+      }
+      case BlockDef::Param::Color:
+      {
+        objParam["type"] = "color";
+        QColor value = param.value.value<QColor>();
+        objValue["r"] = value.red();
+        objValue["g"] = value.green();
+        objValue["b"] = value.blue();
+        objParam["value"] = objValue;
+        break;
+      }
+      default:
+        break;
+    }
+
+    params.append(objParam);
+  }
+
+  obj["params"] = params;
+  (*root)[name] = obj;
+}
+
+//------------------------------------------------------------------------------
+void QNodeViewBlock::load()
+{
+}
+

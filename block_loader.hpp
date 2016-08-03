@@ -36,6 +36,7 @@ struct BlockDef
   };
 
   static Param::Type StringToParamType(const QString& str);
+  static string ParamTypeToString(Param::Type type);
 
   vector<Port> inputs;
   vector<Port> outputs;
@@ -47,3 +48,16 @@ bool loadBlockDesc(const string& filename);
 extern unordered_map<string, BlockParam> paramsByName;
 extern vector<BlockParam> params;
 extern unordered_map<string, BlockDef> blockDefs;
+
+extern QJsonArray BlockDefToJson(const BlockDef& blockDef);
+extern BlockDef BlockDefFromJson(const QJsonArray& arrBlockDef);
+
+struct Float2
+{
+  float x, y;
+};
+
+struct Float3
+{
+  float x, y, z;
+};

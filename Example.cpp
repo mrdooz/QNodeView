@@ -98,6 +98,7 @@ void ExampleMainWindow::createMenus()
 
 void ExampleMainWindow::loadFile()
 {
+  _editor->loadScene();
 }
 
 void ExampleMainWindow::saveFile()

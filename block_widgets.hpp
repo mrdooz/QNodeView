@@ -60,3 +60,6 @@ struct ColorProperty : public QWidget
   RenderArea* _renderArea;
   QColor _color;
 };
+
+Q_DECLARE_METATYPE(Float2);
+Q_DECLARE_METATYPE(Float3);

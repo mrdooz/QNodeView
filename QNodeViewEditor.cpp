@@ -190,32 +190,68 @@ QGraphicsItem* QNodeViewEditor::itemAt(const QPointF& point)
 //------------------------------------------------------------------------------
 void QNodeViewEditor::loadScene()
 {
+  QFile f("c:/temp/scene.json");
+  f.open(QIODevice::ReadOnly);
+  QJsonDocument doc(QJsonDocument::fromJson(f.readAll()));
+
+  QJsonObject root = doc.object();
+
+  // load the blocks
+  QJsonObject objBlocks = root["blocks"].toObject();
+  for (const QString& key : objBlocks.keys())
+  {
+    // find blockdef
+    auto it = blockDefs.find(key.toStdString());
+    if (it == blockDefs.end())
+    {
+      qWarning() << "Unable to find block def for: " << key;
+      continue;
+    }
+
+    QNodeViewBlock* block = new QNodeViewBlock(it->second);
+    _scene->addItem(block);
+    block->init();
+    //block->setPos(mapToScene(event->pos()));
+
+  }
+
 }
 
 //------------------------------------------------------------------------------
 void QNodeViewEditor::saveScene()
 {
+  QJsonDocument doc;
+  QJsonObject blocks;
   for (QGraphicsItem* item : _scene->items())
   {
     switch (item->type())
     {
       case QNodeViewType_Port:
       {
-        int a = 10;
+        //int a = 10;
         break;
       }
 
       case QNodeViewType_Connection:
       {
-        int a = 10;
+        //int a = 10;
         break;
       }
 
       case QNodeViewType_Block:
       {
-        int a = 10;
+        static_cast<QNodeViewBlock*>(item)->save(&blocks);
+        //int a = 10;
         break;
       }
     }
   }
+
+  QJsonObject root;
+  root["blocks"] = blocks;
+  doc.setObject(root);
+
+  QFile f("c:/temp/scene.json");
+  f.open(QIODevice::WriteOnly);
+  f.write(doc.toJson());
 }

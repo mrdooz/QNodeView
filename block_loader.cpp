@@ -30,6 +30,28 @@ BlockDef::Param::Type BlockDef::StringToParamType(const QString& str)
 }
 
 //------------------------------------------------------------------------------
+string BlockDef::ParamTypeToString(Param::Type type)
+{
+  switch (type)
+  {
+  case Param::Bool:
+    return "bool";
+  case Param::Int:
+    return "int";
+  case Param::Float:
+    return "float";
+  case Param::Float2:
+    return "float2";
+  case Param::Float3:
+    return "float3";
+  case Param::Color:
+    return "color";
+  default:
+    return "";
+  }
+}
+
+//------------------------------------------------------------------------------
 bool loadBlockDesc(const string& filename)
 {
   QFile file(filename.c_str());
@@ -161,4 +183,19 @@ bool loadBlockDesc(const string& filename)
   }
 
   return true;
+}
+
+
+//------------------------------------------------------------------------------
+QJsonArray BlockDefToJson(const BlockDef& blockDef)
+{
+  QJsonArray arr;
+  return arr;
+}
+
+//------------------------------------------------------------------------------
+BlockDef BlockDefFromJson(const QJsonArray& arrBlockDef)
+{
+  BlockDef blockDef;
+  return blockDef;
 }
