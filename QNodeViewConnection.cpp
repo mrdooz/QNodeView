@@ -21,6 +21,7 @@
 
 #include "QNodeViewConnection.h"
 #include "QNodeViewPort.h"
+#include "QNodeViewBlock.h"
 
 //------------------------------------------------------------------------------
 QNodeViewConnection::QNodeViewConnection(QGraphicsItem* parent)
@@ -147,4 +148,26 @@ void QNodeViewConnection::finalize()
 int QNodeViewConnection::type() const
 {
   return QNodeViewType_Connection;
+}
+
+//------------------------------------------------------------------------------
+void QNodeViewConnection::save(QJsonArray* root)
+{
+  if (!_startPort || !_endPort)
+    return;
+
+  QJsonObject obj;
+
+  QJsonObject objFrom;
+  objFrom["block"] = _startPort->block()->blockId();
+  objFrom["port"] = (int)_startPort->_idx;
+
+  QJsonObject objTo;
+  objTo["block"] = _endPort->block()->blockId();
+  objTo["port"] = (int)_endPort->_idx;
+
+  obj["from"] = objFrom;
+  obj["to"] = objTo;
+
+  root->append(obj);
 }

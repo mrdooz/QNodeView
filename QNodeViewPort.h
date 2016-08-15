@@ -20,6 +20,7 @@
 */
 
 #pragma once
+#include "precompiled.hpp"
 
 #include "QNodeViewCommon.h"
 
@@ -29,7 +30,7 @@ class QNodeViewConnection;
 class QNodeViewPort : public QGraphicsPathItem
 {
 public:
-  QNodeViewPort(int parameterType, QGraphicsItem* parent = NULL);
+  QNodeViewPort(int parameterType, size_t idx, QGraphicsItem* parent = NULL);
   virtual ~QNodeViewPort();
 
   void setBlock(QNodeViewBlock* block);
@@ -50,13 +51,15 @@ public:
 
   enum class State
   {
+    DragInvalid = -1,
     None,
     DragStart,
     DragValid,
-    DragInvalid,
   };
 
   void setState(State state);
+
+  size_t _idx;
 
 private:
 
@@ -75,5 +78,4 @@ private:
 
   // if the port is part of any drag/drop operation, keep track of its state
   State _state;
-
 };

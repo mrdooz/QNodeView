@@ -20,6 +20,7 @@
 */
 
 #pragma once
+#include "precompiled.hpp"
 
 enum QNodeViewType
 {

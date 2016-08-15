@@ -79,8 +79,8 @@ void QNodeViewCanvas::dropEvent(QDropEvent* event)
   QString blockType = event->mimeData()->text();
 
   // find block def, and create it
-  auto it = blockDefs.find(blockType.toStdString());
-  if (it == blockDefs.end())
+  auto it = BLOCK_DEFS.find(blockType.toStdString());
+  if (it == BLOCK_DEFS.end())
   {
     qWarning() << "Unable to find block def for: " << blockType;
     return;
@@ -88,7 +88,7 @@ void QNodeViewCanvas::dropEvent(QDropEvent* event)
 
   const BlockDef& blockDef = it->second;
 
-  QNodeViewBlock* block = new QNodeViewBlock(blockDef);
+  QNodeViewBlock* block = new QNodeViewBlock(blockDef, NEXT_BLOCK_ID++);
   scene()->addItem(block);
   block->init();
   block->setPos(mapToScene(event->pos()));

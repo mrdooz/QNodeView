@@ -42,7 +42,7 @@ int main(int argc, char* argv[])
 
 ExampleMainWindow::ExampleMainWindow(QWidget* parent) : QMainWindow(parent)
 {
-  loadBlockDesc("config/block1.json");
+  loadBlockDesc("/Users/dooz/projects/QNodeView/config/block1.json");
 
   setWindowTitle(tr("QNodeView Example"));
 
@@ -55,7 +55,7 @@ ExampleMainWindow::ExampleMainWindow(QWidget* parent) : QMainWindow(parent)
   QListWidget* listWidget = new BlockListWidget(this);
   listWidget->setDragEnabled(true);
 
-  for (auto& kv : blockDefs)
+  for (auto& kv : BLOCK_DEFS)
   {
     new QListWidgetItem(tr(kv.first.c_str()), listWidget);
   }

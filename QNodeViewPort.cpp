@@ -23,8 +23,8 @@
 #include "QNodeViewConnection.h"
 
 //------------------------------------------------------------------------------
-QNodeViewPort::QNodeViewPort(int parameterType, QGraphicsItem* parent)
-    : QGraphicsPathItem(parent), _parameterType(parameterType), _radius(5), _margin(2), _state(State::None)
+QNodeViewPort::QNodeViewPort(int parameterType, size_t idx, QGraphicsItem* parent)
+    : QGraphicsPathItem(parent), _idx(idx), _radius(5), _margin(2), _parameterType(parameterType), _state(State::None)
 {
   setCacheMode(DeviceCoordinateCache);
 

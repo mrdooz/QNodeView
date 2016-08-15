@@ -20,6 +20,7 @@
 */
 
 #pragma once
+#include "precompiled.hpp"
 
 class QPointF;
 class QGraphicsScene;

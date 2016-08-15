@@ -1,4 +1,5 @@
 #include "block_widgets.hpp"
+#include <QtGlobal>
 
 //------------------------------------------------------------------------------
 QMimeData* BlockListWidget::mimeData(const QList<QListWidgetItem*>& items) const
@@ -187,7 +188,10 @@ ColorProperty::ColorProperty(BlockDef::Param* param, QWidget* parent)
     connect(slider, &QSlider::valueChanged, spinBox, &QSpinBox::setValue);
     // QOverload needed to disambiguate between overloads,
     // see: http://stackoverflow.com/questions/16794695/connecting-overloaded-signals-and-slots-in-qt-5
-    connect(spinBox, QOverload<int>::of(&QSpinBox::valueChanged), slider, &QSlider::setValue);
+//    connect(spinBox, QOverload<int>::of(&QSpinBox::valueChanged), slider, &QSlider::setValue);
+
+    QObject::connect<void(QSpinBox::*)(int)>(spinBox, &QSpinBox::valueChanged,
+                                             slider, &QSlider::setValue);
     connect(slider, &QSlider::valueChanged, [this, i](int value) {
       switch (i)
       {

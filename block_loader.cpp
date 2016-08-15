@@ -1,8 +1,9 @@
 #include "block_loader.hpp"
 
-unordered_map<string, BlockParam> paramsByName;
-vector<BlockParam> params;
-unordered_map<string, BlockDef> blockDefs;
+unordered_map<string, BlockParam> PARAMS_BY_NAME;
+vector<BlockParam> PARAMS;
+unordered_map<string, BlockDef> BLOCK_DEFS;
+int NEXT_BLOCK_ID = 1;
 
 //------------------------------------------------------------------------------
 BlockDef::Param::Type BlockDef::StringToParamType(const QString& str)
@@ -80,8 +81,8 @@ bool loadBlockDesc(const string& filename)
     QJsonObject objType = valType.toObject();
     QString typeName = objType["name"].toString();
     BlockParam param{ typeName.toStdString(), objType["id"].toInt() };
-    params.push_back(param);
-    paramsByName[typeName.toStdString()] = param;
+    PARAMS.push_back(param);
+    PARAMS_BY_NAME[typeName.toStdString()] = param;
   }
 
   // load blocks
@@ -107,8 +108,8 @@ bool loadBlockDesc(const string& filename)
       QString inputName = objInput["name"].toString();
       QString type = objInput["type"].toString();
 
-      auto it = paramsByName.find(type.toStdString());
-      if (it == paramsByName.end())
+      auto it = PARAMS_BY_NAME.find(type.toStdString());
+      if (it == PARAMS_BY_NAME.end())
       {
         qWarning() << "Unknown parameter type in input: " << type;
         return false;
@@ -123,8 +124,8 @@ bool loadBlockDesc(const string& filename)
       QString outputName = objOutput["name"].toString();
       QString type = objOutput["type"].toString();
 
-      auto it = paramsByName.find(type.toStdString());
-      if (it == paramsByName.end())
+      auto it = PARAMS_BY_NAME.find(type.toStdString());
+      if (it == PARAMS_BY_NAME.end())
       {
         qWarning() << "Unknown parameter type in output: " << type;
         return false;
@@ -179,7 +180,7 @@ bool loadBlockDesc(const string& filename)
       blockDef.params.push_back(param);
     }
 
-    blockDefs[blockDef.name] = blockDef;
+    BLOCK_DEFS[blockDef.name] = blockDef;
   }
 
   return true;
@@ -187,15 +188,94 @@ bool loadBlockDesc(const string& filename)
 
 
 //------------------------------------------------------------------------------
-QJsonArray BlockDefToJson(const BlockDef& blockDef)
+QJsonArray BlockDefParamsToJson(const vector<BlockDef::Param>& params)
 {
-  QJsonArray arr;
-  return arr;
+    QJsonArray res;
+    for (const BlockDef::Param& param : params)
+    {
+      QJsonObject objParam;
+      QJsonObject objValue;
+      switch (param.type)
+      {
+        case BlockDef::Param::Unknown:
+          break;
+        case BlockDef::Param::Bool:
+          objParam["type"] = "bool";
+          objParam["value"] = param.value.toBool();
+          break;
+        case BlockDef::Param::Int:
+          objParam["type"] = "int";
+          objParam["value"] = param.value.toInt();
+          break;
+        case BlockDef::Param::Float:
+          objParam["type"] = "float";
+          objParam["value"] = param.value.toFloat();
+          break;
+        case BlockDef::Param::Float2:
+        {
+          // http://stackoverflow.com/questions/24362946/how-can-i-cast-a-qvariant-to-custom-class
+          objParam["type"] = "float2";
+          Float2 value = param.value.value<Float2>();
+          objValue["x"] = value.x;
+          objValue["y"] = value.y;
+          objParam["value"] = objValue;
+          break;
+        }
+        case BlockDef::Param::Float3:
+        {
+          objParam["type"] = "float3";
+          Float3 value = param.value.value<Float3>();
+          objValue["x"] = value.x;
+          objValue["y"] = value.y;
+          objValue["z"] = value.z;
+          objParam["value"] = objValue;
+          break;
+        }
+        case BlockDef::Param::Color:
+        {
+          objParam["type"] = "color";
+          QColor value = param.value.value<QColor>();
+          objValue["r"] = value.red();
+          objValue["g"] = value.green();
+          objValue["b"] = value.blue();
+          objParam["value"] = objValue;
+          break;
+        }
+        default:
+          break;
+      }
+
+      res.append(objParam);
+    }
+
+    return res;
 }
 
 //------------------------------------------------------------------------------
-BlockDef BlockDefFromJson(const QJsonArray& arrBlockDef)
+vector<BlockDef::Param> BlockDefParamsFromJson(const QJsonArray& arrBlockDef)
 {
-  BlockDef blockDef;
-  return blockDef;
+  vector<BlockDef::Param> params;
+
+  for (const QJsonValue& valParam : arrBlockDef)
+  {
+      const QJsonObject& objParam = valParam.toObject();
+      QString type = objParam["type"].toString();
+
+      BlockDef::Param param;
+      if (type == "color")
+      {
+          param.type = BlockDef::Param::Color;
+          QJsonObject objValue = objParam["value"].toObject();
+          param.value = QColor(objValue["r"].toInt(), objValue["g"].toInt(), objValue["b"].toInt());
+      }
+      else if (type == "float")
+      {
+          param.type = BlockDef::Param::Float;
+          param.value = (float)objParam["value"].toDouble();
+      }
+
+      params.push_back(param);
+  }
+
+  return params;
 }

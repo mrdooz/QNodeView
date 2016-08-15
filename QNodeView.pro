@@ -29,7 +29,10 @@ SOURCES +=  \
             QNodeViewConnection.cpp \
             QNodeViewBlock.cpp \  
             QNodeViewCanvas.cpp \
-            Example.cpp
+            Example.cpp \
+    block_loader.cpp \
+    block_widgets.cpp \
+    precompiled.cpp
 
 HEADERS  += \
             QNodeViewEditor.h \
@@ -38,6 +41,9 @@ HEADERS  += \
             QNodeViewBlock.h \
             QNodeViewCommon.h \
             QNodeViewCanvas.h \
-            Example.h
+            Example.h \
+    block_loader.hpp \
+    block_widgets.hpp \
+    precompiled.hpp
 
 cache()

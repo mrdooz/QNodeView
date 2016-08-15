@@ -20,15 +20,17 @@
 */
 
 #pragma once
+#include "precompiled.hpp"
 #include "QNodeViewCommon.h"
 #include "block_loader.hpp"
+
 
 class QNodeViewPort;
 
 class QNodeViewBlock : public QGraphicsPathItem
 {
 public:
-  QNodeViewBlock(const BlockDef& blockDef, QGraphicsItem* parent = NULL);
+  QNodeViewBlock(const BlockDef& blockDef, int blockId, QGraphicsItem* parent = NULL);
 
   void init();
 
@@ -38,17 +40,17 @@ public:
 
   void updatePropertyWidget();
 
-  void save(QJsonObject* root);
-  void load();
+  void save(QJsonArray* root);
+  int blockId() const;
+
+  QNodeViewPort* findPort(int idx);
 
 private:
 
-  void addInputPort(const QString& name, int paramterType);
-  void addOutputPort(const QString& name, int paramterType);
-
-  QNodeViewPort* addPort(const QString& name, bool isOutput, int type);
+  QNodeViewPort* addPort(const QString& name, bool isOutput, int type, size_t idx);
 
   BlockDef _blockDef;
+  int _blockId;
 
   QGraphicsTextItem* _label;
   QGraphicsDropShadowEffect _dropShadow;
@@ -57,4 +59,5 @@ private:
   qint32 _horizontalMargin;
   qint32 _verticalMargin;
 
+  unordered_map<int, QNodeViewPort*> _ports;
 };

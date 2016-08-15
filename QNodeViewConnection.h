@@ -20,6 +20,7 @@
 */
 
 #pragma once
+#include "precompiled.hpp"
 
 #include "QNodeViewCommon.h"
 
@@ -48,6 +49,8 @@ public:
 
   void finalize();
   int type() const;
+
+  void save(QJsonArray* root);
 
 private:
   QPointF _startPosition;

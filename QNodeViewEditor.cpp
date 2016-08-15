@@ -29,7 +29,7 @@
 
 //------------------------------------------------------------------------------
 QNodeViewEditor::QNodeViewEditor(QGraphicsScene* scene, QObject* parent)
-    : QObject(parent), _scene(scene), _activeConnection(NULL)
+  : QObject(parent), _scene(scene), _activeConnection(NULL)
 {
   scene->installEventFilter(this);
 }
@@ -54,7 +54,7 @@ bool QNodeViewEditor::validEndPort(QGraphicsItem* item)
     std::swap(startPort, endPort);
 
   return startPort->block() != endPort->block() && startPort->isOutput() && !endPort->isOutput()
-         && endPort->connections().empty();
+      && endPort->connections().empty();
 }
 
 //------------------------------------------------------------------------------
@@ -65,107 +65,107 @@ bool QNodeViewEditor::eventFilter(QObject* object, QEvent* event)
   switch (event->type())
   {
     case QEvent::GraphicsSceneMousePress:
-    {
-      switch (mouseEvent->button())
       {
-        case Qt::LeftButton:
+        switch (mouseEvent->button())
         {
-          QGraphicsItem* item = itemAt(mouseEvent->scenePos());
-          if (!item)
-          {
-            g_mainWindow->_propertyWidget->clearLayout();
-            break;
-          }
+          case Qt::LeftButton:
+            {
+              QGraphicsItem* item = itemAt(mouseEvent->scenePos());
+              if (!item)
+              {
+                g_mainWindow->_propertyWidget->clearLayout();
+                break;
+              }
 
-          if (item->type() == QNodeViewType_Port)
-          {
-            _activeConnection = new QNodeViewConnection(NULL);
-            _scene->addItem(_activeConnection);
-            _activeConnection->setStartPort(static_cast<QNodeViewPort*>(item));
-            _activeConnection->setStartPosition(item->scenePos());
-            _activeConnection->setEndPosition(mouseEvent->scenePos());
-            _activeConnection->updatePath();
-            _activeConnection->startPort()->setState(QNodeViewPort::State::DragStart);
+              if (item->type() == QNodeViewType_Port)
+              {
+                _activeConnection = new QNodeViewConnection(NULL);
+                _scene->addItem(_activeConnection);
+                _activeConnection->setStartPort(static_cast<QNodeViewPort*>(item));
+                _activeConnection->setStartPosition(item->scenePos());
+                _activeConnection->setEndPosition(mouseEvent->scenePos());
+                _activeConnection->updatePath();
+                _activeConnection->startPort()->setState(QNodeViewPort::State::DragStart);
 
-            return true;
-          }
-          else if (item->type() == QNodeViewType_Block)
-          {
-            QNodeViewBlock* block = (QNodeViewBlock*)item;
-            block->updatePropertyWidget();
-          }
+                return true;
+              }
+              else if (item->type() == QNodeViewType_Block)
+              {
+                QNodeViewBlock* block = (QNodeViewBlock*)item;
+                block->updatePropertyWidget();
+              }
 
-          break;
-        }
+              break;
+            }
 
-        case Qt::RightButton:
-        {
-          QGraphicsItem* item = itemAt(mouseEvent->scenePos());
-          if (!item)
-            break;
+          case Qt::RightButton:
+            {
+              QGraphicsItem* item = itemAt(mouseEvent->scenePos());
+              if (!item)
+                break;
 
-          const QPoint menuPosition = mouseEvent->screenPos();
-          // TODO: show context menus?
-          break;
+              const QPoint menuPosition = mouseEvent->screenPos();
+              // TODO: show context menus?
+              break;
+            }
         }
       }
-    }
 
     case QEvent::GraphicsSceneMouseMove:
-    {
-      if (_activeConnection)
       {
-        if (_lastPort)
-          _lastPort->setState(QNodeViewPort::State::None);
-
-        _activeConnection->setEndPosition(mouseEvent->scenePos());
-        _activeConnection->updatePath();
-
-        QGraphicsItem* item = itemAt(mouseEvent->scenePos());
-        if (validEndPort(item))
+        if (_activeConnection)
         {
-          ((QNodeViewPort*)item)->setState(QNodeViewPort::State::DragValid);
-          _lastPort = (QNodeViewPort*)item;
+          if (_lastPort)
+            _lastPort->setState(QNodeViewPort::State::None);
+
+          _activeConnection->setEndPosition(mouseEvent->scenePos());
+          _activeConnection->updatePath();
+
+          QGraphicsItem* item = itemAt(mouseEvent->scenePos());
+          if (validEndPort(item))
+          {
+            ((QNodeViewPort*)item)->setState(QNodeViewPort::State::DragValid);
+            _lastPort = (QNodeViewPort*)item;
+          }
+          else if (item && item->type() == QNodeViewType_Port && item != _activeConnection->startPort())
+          {
+            ((QNodeViewPort*)item)->setState(QNodeViewPort::State::DragInvalid);
+            _lastPort = (QNodeViewPort*)item;
+          }
+          return true;
         }
-        else if (item && item->type() == QNodeViewType_Port && item != _activeConnection->startPort())
-        {
-          ((QNodeViewPort*)item)->setState(QNodeViewPort::State::DragInvalid);
-          _lastPort = (QNodeViewPort*)item;
-        }
-        return true;
+        break;
       }
-      break;
-    }
 
     case QEvent::GraphicsSceneMouseRelease:
-    {
-      if (_activeConnection && mouseEvent->button() == Qt::LeftButton)
       {
-        _activeConnection->startPort()->setState(QNodeViewPort::State::None);
-
-        QGraphicsItem* item = itemAt(mouseEvent->scenePos());
-        if (item && item->type() == QNodeViewType_Port)
+        if (_activeConnection && mouseEvent->button() == Qt::LeftButton)
         {
-          QNodeViewPort* endPort = (QNodeViewPort*)(item);
-          endPort->setState(QNodeViewPort::State::None);
+          _activeConnection->startPort()->setState(QNodeViewPort::State::None);
 
-          if (validEndPort(endPort))
+          QGraphicsItem* item = itemAt(mouseEvent->scenePos());
+          if (item && item->type() == QNodeViewType_Port)
           {
-            _activeConnection->setEndPosition(endPort->scenePos());
-            _activeConnection->setEndPort(endPort);
-            _activeConnection->finalize();
-            _activeConnection = NULL;
-            return true;
-          }
-        }
+            QNodeViewPort* endPort = (QNodeViewPort*)(item);
+            endPort->setState(QNodeViewPort::State::None);
 
-        _scene->removeItem(_activeConnection);
-        delete _activeConnection;
-        _activeConnection = NULL;
-        return true;
+            if (validEndPort(endPort))
+            {
+              _activeConnection->setEndPosition(endPort->scenePos());
+              _activeConnection->setEndPort(endPort);
+              _activeConnection->finalize();
+              _activeConnection = NULL;
+              return true;
+            }
+          }
+
+          _scene->removeItem(_activeConnection);
+          delete _activeConnection;
+          _activeConnection = NULL;
+          return true;
+        }
+        break;
       }
-      break;
-    }
   }
 
   return QObject::eventFilter(object, event);
@@ -190,68 +190,131 @@ QGraphicsItem* QNodeViewEditor::itemAt(const QPointF& point)
 //------------------------------------------------------------------------------
 void QNodeViewEditor::loadScene()
 {
-  QFile f("c:/temp/scene.json");
+  QFile f("/Users/dooz/tmp/scene.json");
   f.open(QIODevice::ReadOnly);
   QJsonDocument doc(QJsonDocument::fromJson(f.readAll()));
 
   QJsonObject root = doc.object();
 
   // load the blocks
-  QJsonObject objBlocks = root["blocks"].toObject();
-  for (const QString& key : objBlocks.keys())
+  QJsonArray arrBlocks = root["blocks"].toArray();
+  for (const QJsonValue val : arrBlocks)
   {
     // find blockdef
-    auto it = blockDefs.find(key.toStdString());
-    if (it == blockDefs.end())
+    QJsonObject objBlock = val.toObject();
+    QString name = objBlock["name"].toString();
+    QString type = objBlock["type"].toString();
+    int id = objBlock["id"].toInt();
+    auto it = BLOCK_DEFS.find(type.toStdString());
+    if (it == BLOCK_DEFS.end())
     {
-      qWarning() << "Unable to find block def for: " << key;
+      qWarning() << "Unable to find block def for: " << type;
       continue;
     }
 
-    QNodeViewBlock* block = new QNodeViewBlock(it->second);
+    BlockDef blockDef = it->second;
+    blockDef.params = BlockDefParamsFromJson(objBlock["params"].toArray());
+    QNodeViewBlock* block = new QNodeViewBlock(blockDef, id);
+    QJsonObject objPos = objBlock["pos"].toObject();
+    block->setPos(objPos["x"].toDouble(), objPos["y"].toDouble());
     _scene->addItem(block);
     block->init();
-    //block->setPos(mapToScene(event->pos()));
-
   }
 
+  auto fnFindBlock = [this](int id) {
+
+    for (QGraphicsItem* item : _scene->items())
+    {
+      if (item->type() != QNodeViewType_Block)
+        continue;
+
+      QNodeViewBlock* block = (QNodeViewBlock*)(item);
+      if (block->blockId() == id)
+        return block;
+    }
+    return (QNodeViewBlock*)nullptr;
+  };
+
+  // load the connections
+  for (const QJsonValue val : root["connections"].toArray())
+  {
+    QJsonObject objConn = val.toObject();
+    QJsonObject objFrom = objConn["from"].toObject();
+    QJsonObject objTo = objConn["to"].toObject();
+
+    QNodeViewBlock* fromBlock = fnFindBlock(objFrom["block"].toInt());
+    QNodeViewBlock* toBlock = fnFindBlock(objTo["block"].toInt());
+
+    if (!fromBlock || !toBlock)
+    {
+      qWarning() << "Unable to find from/to block: " << objFrom["block"].toInt() << ", " << objTo["block"].toInt();
+      continue;
+    }
+
+    QNodeViewPort* fromPort = fromBlock->findPort(objFrom["port"].toInt());
+    QNodeViewPort* toPort = toBlock->findPort(objTo["port"].toInt());
+
+    if (!fromPort || !toPort)
+    {
+      qWarning() << "Unable to find from/to port: " << objFrom["port"].toInt() << ", " << objTo["port"].toInt();
+      continue;
+    }
+
+    QNodeViewConnection* conn = new QNodeViewConnection(NULL);
+      _scene->addItem(conn);
+      conn->setStartPort(fromPort);
+      conn->setStartPosition(fromPort->scenePos());
+      conn->setEndPort(toPort);
+      conn->setEndPosition(toPort->scenePos());
+      conn->updatePath();
+      conn->finalize();
+  }
+
+  QJsonObject objMeta = root["meta"].toObject();
+  NEXT_BLOCK_ID = objMeta["nextBlockId"].toInt();
 }
 
 //------------------------------------------------------------------------------
 void QNodeViewEditor::saveScene()
 {
   QJsonDocument doc;
-  QJsonObject blocks;
+  QJsonArray blocks;
+  QJsonArray connections;
+
   for (QGraphicsItem* item : _scene->items())
   {
     switch (item->type())
     {
       case QNodeViewType_Port:
-      {
-        //int a = 10;
-        break;
-      }
+        {
+          break;
+        }
 
       case QNodeViewType_Connection:
-      {
-        //int a = 10;
-        break;
-      }
+        {
+          static_cast<QNodeViewConnection*>(item)->save(&connections);
+          break;
+        }
 
       case QNodeViewType_Block:
-      {
-        static_cast<QNodeViewBlock*>(item)->save(&blocks);
-        //int a = 10;
-        break;
-      }
+        {
+          static_cast<QNodeViewBlock*>(item)->save(&blocks);
+          break;
+        }
     }
   }
 
   QJsonObject root;
   root["blocks"] = blocks;
+  root["connections"] = connections;
+
+  QJsonObject meta;
+  meta["nextBlockId"] = NEXT_BLOCK_ID;
+  root["meta"] = meta;
+
   doc.setObject(root);
 
-  QFile f("c:/temp/scene.json");
+  QFile f("/Users/dooz/tmp/scene.json");
   f.open(QIODevice::WriteOnly);
   f.write(doc.toJson());
 }

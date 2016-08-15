@@ -32,8 +32,8 @@ struct RenderArea : public QWidget
 {
   RenderArea(QWidget *parent = 0);
 
-  QSize RenderArea::minimumSizeHint() const;
-  QSize RenderArea::sizeHint() const;
+  QSize minimumSizeHint() const Q_DECL_OVERRIDE;
+  QSize sizeHint() const Q_DECL_OVERRIDE;
 
   void paintEvent(QPaintEvent *event) Q_DECL_OVERRIDE;
 
@@ -60,6 +60,3 @@ struct ColorProperty : public QWidget
   RenderArea* _renderArea;
   QColor _color;
 };
-
-Q_DECLARE_METATYPE(Float2);
-Q_DECLARE_METATYPE(Float3);

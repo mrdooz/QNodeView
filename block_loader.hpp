@@ -1,4 +1,5 @@
 #pragma once
+#include "precompiled.hpp"
 
 struct BlockParam
 {
@@ -9,6 +10,7 @@ struct BlockParam
 struct BlockDef
 {
   string name;
+  string type;
 
   struct Port
   {
@@ -45,12 +47,13 @@ struct BlockDef
 
 bool loadBlockDesc(const string& filename);
 
-extern unordered_map<string, BlockParam> paramsByName;
-extern vector<BlockParam> params;
-extern unordered_map<string, BlockDef> blockDefs;
+extern unordered_map<string, BlockParam> PARAMS_BY_NAME;
+extern vector<BlockParam> PARAMS;
+extern unordered_map<string, BlockDef> BLOCK_DEFS;
+extern int NEXT_BLOCK_ID;
 
-extern QJsonArray BlockDefToJson(const BlockDef& blockDef);
-extern BlockDef BlockDefFromJson(const QJsonArray& arrBlockDef);
+extern QJsonArray BlockDefParamsToJson(const vector<BlockDef::Param>& PARAMS);
+extern vector<BlockDef::Param> BlockDefParamsFromJson(const QJsonArray& arrBlockDef);
 
 struct Float2
 {
@@ -61,3 +64,6 @@ struct Float3
 {
   float x, y, z;
 };
+
+Q_DECLARE_METATYPE(Float2);
+Q_DECLARE_METATYPE(Float3);
